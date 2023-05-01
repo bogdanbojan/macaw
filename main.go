@@ -13,6 +13,7 @@ type Dictionary struct {
 
 func main() {
 	ShowGUI()
+
 	// fileName := "words.txt"
 	// words := extractWords(fileName)
 	// apiRequest(words)
