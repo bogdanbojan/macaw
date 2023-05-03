@@ -1,10 +1,7 @@
 package main
 
 import (
-	_ "embed"
-
 	"github.com/bogdanbojan/macaw/gui"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
