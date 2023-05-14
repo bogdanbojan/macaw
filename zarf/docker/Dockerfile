@@ -1,14 +1,13 @@
 FROM golang:1.20.6-bullseye AS base
 
-RUN git clone https://github.com/bogdanbojan/macaw.git && \ 
-    cd ./macaw 
-
 RUN apt-get update && \ 
     apt-get install xz-utils && \
     wget https://ziglang.org/download/0.9.1/zig-linux-x86_64-0.9.1.tar.xz && \
     tar -xf zig-linux-x86_64-0.9.1.tar.xz && \
     cd zig-linux-x86_64-0.9.1 && \
     ln -s $(pwd)/zig /usr/bin/
+
+COPY . ./macaw
 
 WORKDIR /go/macaw/
 
