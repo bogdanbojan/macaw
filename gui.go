@@ -1,9 +1,8 @@
-//go:generate fyne bundle -append -o bundled.go Icon.png
-
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"golang.design/x/hotkey"
 )
 
 type gui struct {
@@ -52,7 +52,7 @@ func ShowGUI() {
 	g.searchResult = widget.NewLabel("")
 	g.searchResult.Wrapping = fyne.TextWrapWord
 
-    // TODO: Implement the copy button later.
+	// TODO: Implement the copy button later.
 	// 	contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
 	// 		w.Clipboard().SetContent(g.searchEntry.Text)
 	// 	})
@@ -64,10 +64,10 @@ func ShowGUI() {
 		}
 
 		res, err := SearchWiki(g.searchEntry.Text)
-        if err != nil {
-            g.searchResult.SetText("Word not found")
-            return
-        }
+		if err != nil {
+			g.searchResult.SetText("Word not found")
+			return
+		}
 		g.searchResult.SetText(res)
 		fnResize()
 	}
@@ -77,12 +77,31 @@ func ShowGUI() {
 		nil, nil, nil,
 		g.searchResult,
 	))
+
+	go func() {
+        // If numlock is on this will not take effect.
+		// Windows+Shift+J
+		hk := hotkey.New([]hotkey.Modifier{hotkey.ModShift, hotkey.Mod4}, hotkey.KeyJ)
+		if err := hk.Register(); err != nil {
+			log.Println("hotkey registration failed")
+		}
+		// Start listen hotkey event whenever it is ready.
+		for range hk.Keydown() {
+			g.win.RequestFocus()
+			g.win.Canvas().Focus(g.searchEntry)
+			log.Println("You pressed the keyboardshortcut")
+		}
+	}()
+
 	fnResize()
 	g.win.Resize(fyne.NewSize(500, 150))
+
+	// This works..
+	//	hotkey := desktop.CustomShortcut(desktop.CustomShortcut{KeyName: fyne.KeyS, Modifier: fyne.KeyModifierControl})
+	//	g.win.Canvas().AddShortcut(&hotkey, func(shortcut fyne.Shortcut) { log.Println("You pressed the keyboardshortcut") })
+
 	g.win.ShowAndRun()
 }
-
-
 
 // TODO: Postpone the features below implementation until we solve the keyboard shortcut problem.
 // ===========================================================================
