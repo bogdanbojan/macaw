@@ -42,9 +42,14 @@ func ShowGUI() {
 
 	searchButton := widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
 
+	contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
+		w.Clipboard().SetContent(input.Text)
+		log.Println(input.Text)
+	})
 	responseContainer := container.NewVBox()
 	responseBox := widget.NewLabel("")
-	responseContainer.Objects = append(responseContainer.Objects, responseBox)
+	responseContainer.Add(responseBox)
+	responseContainer.Add(contentCopyButton)
 	responseContainer.Hidden = true
 
 	searchButton.OnTapped = func() {
@@ -56,7 +61,6 @@ func ShowGUI() {
 		responseContainer.Hidden = false
 		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
 		responseBox.Refresh()
-		input.SetText("")
 		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
 
