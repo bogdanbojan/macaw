@@ -68,14 +68,22 @@ func ShowGUI() {
 	onlineDictLabel := widget.NewLabel("Online dictionary")
 	onlineDictSlider := widget.NewSlider(0, 1)
 
+	dataFetchContainer := container.NewVBox()
+	dataFetchContainer.Add(widget.NewLabel("Data fetching options"))
+	dataFetchContainer.Add(widget.NewSeparator())
+	dataFetchContainer.Add(container.NewAdaptiveGrid(2, wikiLabel, wikiSlider))
+	dataFetchContainer.Add(container.NewAdaptiveGrid(2, localDictLabel, localDictSlider))
+	dataFetchContainer.Add(container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider))
+
 	// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
 	// if you want to add additional text to the icon.
 	toolbar := widget.NewToolbar()
 	actionToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
-        dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
-		log.Println("Clicked the action icon")
+		dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
 	})
-	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {})
+	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {
+		widget.ShowPopUpAtPosition(dataFetchContainer, w.Canvas(), fyne.NewPos(0, 40))
+	})
 	toolbar.Append(settingsToolbar)
 	toolbar.Append(actionToolbar)
 
@@ -87,16 +95,6 @@ func ShowGUI() {
 		input,
 		searchButton,
 		responseContainer,
-
-		// Construct enabling/ disabling of data fetching options.
-		widget.NewAccordion(
-			widget.NewAccordionItem("Data fetching settings",
-				container.NewVBox(
-					container.NewAdaptiveGrid(2, wikiLabel, wikiSlider),
-					container.NewAdaptiveGrid(2, localDictLabel, localDictSlider),
-					container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider),
-				)),
-		),
 	))
 
 	g.win.Resize(fyne.NewSize(500, 200))
