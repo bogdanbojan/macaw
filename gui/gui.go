@@ -59,6 +59,8 @@ func ShowGUI() {
 		input.SetText("")
 		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
+
+	// Data fetching options.
 	wikiLabel := widget.NewLabel("Wikipedia")
 	wikiSlider := widget.NewSlider(0, 1)
 	localDictLabel := widget.NewLabel("Local dictionary")
@@ -66,22 +68,25 @@ func ShowGUI() {
 	onlineDictLabel := widget.NewLabel("Online dictionary")
 	onlineDictSlider := widget.NewSlider(0, 1)
 
+	// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
+	// if you want to add additional text to the icon.
+	toolbar := widget.NewToolbar()
+	actionToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
+        dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
+		log.Println("Clicked the action icon")
+	})
+	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {})
+	toolbar.Append(settingsToolbar)
+	toolbar.Append(actionToolbar)
+
 	g.win.SetContent(container.NewVBox(
-		// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
-		// if you want to add additional text to the icon.
-		widget.NewToolbar(
-			widget.NewToolbarAction(theme.SettingsIcon(), func() {}),
-			widget.NewToolbarAction(theme.InfoIcon(), func() {}),
-		),
+		toolbar,
 		widget.NewButton("Choose .txt file", func() {
 			g.openFile()
 		}),
-		searchBox,
-		responseBox,
-        // Construct enabling/ disabling of data fetching options.
-		container.NewAdaptiveGrid(2, wikiLabel, wikiSlider),
-		container.NewAdaptiveGrid(2, localDictLabel, localDictSlider),
-		container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider),
+		input,
+		searchButton,
+		responseContainer,
 
 		// Construct enabling/ disabling of data fetching options.
 		widget.NewAccordion(
@@ -106,7 +111,7 @@ func (g *gui) openFile() {
 		if r == nil {
 			return
 		}
-        g.uri = r.URI()
+		g.uri = r.URI()
 		g.loadFile(r)
 	}, g.win)
 }
