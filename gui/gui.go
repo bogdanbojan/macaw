@@ -40,15 +40,25 @@ func ShowGUI() {
 	input := widget.NewEntry()
 	input.SetPlaceHolder("Enter a word to search for...")
 
-	searchBox := container.NewVBox(input, widget.NewButtonWithIcon("Search", theme.SearchIcon(), func() {
-		log.Println("Content was: ", input.Text)
-	}))
+	searchButton := widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
 
-	responseText := widget.NewLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
-	responseText.Wrapping = fyne.TextWrapWord
+	responseContainer := container.NewVBox()
+	responseBox := widget.NewLabel("")
+	responseContainer.Objects = append(responseContainer.Objects, responseBox)
+	responseContainer.Hidden = true
 
-	responseBox := container.NewScroll(responseText)
-	responseBox.SetMinSize(fyne.NewSize(500, 200))
+	searchButton.OnTapped = func() {
+		if len(input.Text) == 0 {
+			dialog.ShowInformation("Search error", "Search entry was empty", w)
+			return
+		}
+
+		responseContainer.Hidden = false
+		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
+		responseBox.Refresh()
+		input.SetText("")
+		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
+	}
 	wikiLabel := widget.NewLabel("Wikipedia")
 	wikiSlider := widget.NewSlider(0, 1)
 	localDictLabel := widget.NewLabel("Local dictionary")
