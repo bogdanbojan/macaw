@@ -72,6 +72,16 @@ func ShowGUI() {
 		container.NewAdaptiveGrid(2, wikiLabel, wikiSlider),
 		container.NewAdaptiveGrid(2, localDictLabel, localDictSlider),
 		container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider),
+
+		// Construct enabling/ disabling of data fetching options.
+		widget.NewAccordion(
+			widget.NewAccordionItem("Data fetching settings",
+				container.NewVBox(
+					container.NewAdaptiveGrid(2, wikiLabel, wikiSlider),
+					container.NewAdaptiveGrid(2, localDictLabel, localDictSlider),
+					container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider),
+				)),
+		),
 	))
 
 	g.win.Resize(fyne.NewSize(500, 200))
