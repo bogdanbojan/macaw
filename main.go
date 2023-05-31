@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	gowiki "github.com/trietmn/go-wiki"
 )
 
 func main() {
@@ -44,11 +46,11 @@ func apiRequest(words []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		handleResponse(resp)
+		handleResponse(resp, w)
 	}
 }
 
-func handleResponse(resp *http.Response) {
+func handleResponse(resp *http.Response, word string) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 
@@ -59,9 +61,18 @@ func handleResponse(resp *http.Response) {
 	err = json.Unmarshal(body, &r)
 
 	if err != nil {
-		fmt.Println("BOO")
+		fmt.Println("Could not find word in the dictionary")
+		searchWiki(word)
 	}
 
-	s, _ := json.MarshalIndent(r, "", "\t")
-	fmt.Println(string(s))
+	// s, _ := json.MarshalIndent(r, "", "\t")
+	// fmt.Println(string(s))
+}
+
+func searchWiki(word string) {
+	res, err := gowiki.Summary(word, 5, -1, false, true)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("Summary: %v\n", res)
 }
