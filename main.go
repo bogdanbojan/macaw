@@ -51,11 +51,16 @@ func apiRequest(words []string) {
 func handleResponse(resp *http.Response) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 	var r []Response
-	json.Unmarshal(body, &r)
+	err = json.Unmarshal(body, &r)
+
+	if err != nil {
+		fmt.Println("BOO")
+	}
 
 	s, _ := json.MarshalIndent(r, "", "\t")
 	fmt.Println(string(s))
