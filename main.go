@@ -10,36 +10,6 @@ import (
 	"os"
 )
 
-type Response struct {
-	Word      string `json:"word"`
-	Phonetic  string `json:"phonetic"`
-	Phonetics []struct {
-		Text      string `json:"text"`
-		Audio     string `json:"audio"`
-		SourceURL string `json:"sourceUrl,omitempty"`
-		License   struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"license,omitempty"`
-	} `json:"phonetics"`
-	Meanings []struct {
-		PartOfSpeech string `json:"partOfSpeech"`
-		Definitions  []struct {
-			Definition string `json:"definition"`
-			Synonyms   []any  `json:"synonyms"`
-			Antonyms   []any  `json:"antonyms"`
-			Example    string `json:"example,omitempty"`
-		} `json:"definitions"`
-		Synonyms []any `json:"synonyms"`
-		Antonyms []any `json:"antonyms"`
-	} `json:"meanings"`
-	License struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"license"`
-	SourceUrls []string `json:"sourceUrls"`
-}
-
 func main() {
 	fileName := "words.txt"
 	words := extractWords(fileName)
