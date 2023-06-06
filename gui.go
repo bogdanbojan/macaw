@@ -49,10 +49,11 @@ func ShowGUI() {
 		w.Clipboard().SetContent(input.Text)
 	})
 	responseContainer := container.NewVBox()
-	responseBox := widget.NewLabel("")
+	responseBox := container.NewScroll(widget.NewLabel(""))
 	responseContainer.Add(responseBox)
 	responseContainer.Add(contentCopyButton)
 	responseContainer.Hidden = true
+    g.responseContainer = responseContainer
 
 	// TODOL: Duplicate code. Simplify this later.
 	input.OnSubmitted = func(string) {
@@ -62,7 +63,7 @@ func ShowGUI() {
 		}
 
 		responseContainer.Hidden = false
-		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
+		// responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
 		responseBox.Refresh()
 	}
 
@@ -73,8 +74,26 @@ func ShowGUI() {
 		}
 
 		responseContainer.Hidden = false
-		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
+
+		res, err := SearchWiki(input.Text)
+		if err != nil {
+			log.Println(err)
+			response := widget.NewLabel("Could not find the wikipedia summary for the given keyword.")
+			responseBox.Content = container.NewScroll(response)
+			responseBox.SetMinSize(responseBox.Content.Size())
+			//responseContainer = container.NewBorder(container.NewVBox(input, searchButton), contentCopyButton, nil, nil, nil)
+			responseBox.Refresh()
+			return
+		}
+		log.Println(res)
+		log.Println("=========================================================")
+
+		responseBox.SetMinSize(fyne.NewSize(500, 200))
+		response := widget.NewLabel(res)
+		response.Wrapping = fyne.TextWrapWord
+		responseBox.Content = container.NewScroll(response)
 		responseBox.Refresh()
+		// responseBox.Text = fmt.Sprint(res)
 		// input.SetText("")
 		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
