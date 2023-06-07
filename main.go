@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	_ "github.com/mattn/go-sqlite3"
 	gowiki "github.com/trietmn/go-wiki"
 )
@@ -114,10 +112,11 @@ func main() {
 //		fmt.Println(string(s))
 //	}
 
-func SearchWiki(word string) {
+func SearchWiki(word string) (string, error) {
 	res, err := gowiki.Summary(word, 5, -1, false, true)
 	if err != nil {
-		fmt.Println(err)
+		return "", err
 	}
-	fmt.Printf("Summary: %v\n", res)
+
+	return res, nil
 }
