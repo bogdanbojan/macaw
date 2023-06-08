@@ -19,7 +19,9 @@ import (
 
 type gui struct {
 	//	content *widget.Entry
-	uri fyne.URI
+	dataFetchContainer *fyne.Container
+	responseContainer  *fyne.Container
+	uri                fyne.URI
 
 	win fyne.Window
 }
