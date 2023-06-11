@@ -1,0 +1,11 @@
+version: '3.3'
+services:
+  database:
+    image: mysql
+    volumes:
+       - "./sql-scripts:/docker-entrypoint-initdb.d"
+    environment:
+      MYSQL_DATABASE: webster_dictionary
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - '3306:3306'
