@@ -5,7 +5,11 @@ services:
     volumes:
        - "./sql-scripts:/docker-entrypoint-initdb.d"
     environment:
-      MYSQL_DATABASE: webster_dictionary
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: webster_dictionary
     ports:
       - '3306:3306'
+    command: --default-authentification-plugin=mysql_native_password
+    restart: unless-stopped
