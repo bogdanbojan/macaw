@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,8 +10,15 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
 	gowiki "github.com/trietmn/go-wiki"
 )
+
+type Dictionary struct {
+	Word       string
+	Wordtype   string
+	Definition string
+}
 
 func main() {
 	fileName := "words.txt"
@@ -46,11 +54,46 @@ func apiRequest(words []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		handleResponse(resp, w)
+
+		handleLocalResponse(w)
+		handleServerResponse(resp, w)
 	}
 }
 
-func handleResponse(resp *http.Response, word string) {
+func handleLocalResponse(word string) {
+	db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/webster_dictionary")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Cannot ping db")
+	}
+
+	res, err := db.Query(fmt.Sprintf(`SELECT entries.definition FROM entries WHERE entries.word = "%s"`, word))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for res.Next() {
+		var dict Dictionary
+		err := res.Scan(&dict.Definition)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println("Definition: ", dict)
+	}
+
+	fmt.Println("==============================================================")
+
+}
+
+func handleServerResponse(resp *http.Response, word string) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 
@@ -65,8 +108,8 @@ func handleResponse(resp *http.Response, word string) {
 		searchWiki(word)
 	}
 
-	// s, _ := json.MarshalIndent(r, "", "\t")
-	// fmt.Println(string(s))
+	s, _ := json.MarshalIndent(r, "", "\t")
+	fmt.Println(string(s))
 }
 
 func searchWiki(word string) {
