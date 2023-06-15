@@ -1,4 +1,4 @@
-package frontend
+package gui
 
 import (
 	"io"
@@ -12,6 +12,7 @@ import (
 
 type gui struct {
 	content *widget.Entry
+	uri     fyne.URI
 
 	win fyne.Window
 }
@@ -55,6 +56,7 @@ func (g *gui) openFile() {
 		if err != nil {
 			dialog.ShowError(err, g.win)
 		} else {
+			g.uri = r.URI()
 			g.content.SetText(string(data))
 		}
 	}, g.win)
