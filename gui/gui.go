@@ -43,7 +43,11 @@ func ShowGUI() {
 		log.Println("Content was: ", input.Text)
 	}))
 
-	responseBox := widget.NewLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+	responseText := widget.NewLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+	responseText.Wrapping = fyne.TextWrapWord
+
+	responseBox := container.NewScroll(responseText)
+    responseBox.SetMinSize(fyne.NewSize(500,200))
 
 	g.win.SetContent(container.NewVBox(
 		widget.NewButton("Choose .txt file", func() {
@@ -53,7 +57,7 @@ func ShowGUI() {
 		responseBox,
 	))
 
-	w.Resize(fyne.NewSize(500, 320))
+	g.win.Resize(fyne.NewSize(500, 300))
 	g.win.ShowAndRun()
 }
 func (g *gui) openFile() {
