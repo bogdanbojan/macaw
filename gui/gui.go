@@ -1,3 +1,5 @@
+//go:generate fyne bundle -append -o bundled.go Icon.png
+
 package gui
 
 import (
@@ -23,6 +25,11 @@ func newGUI(w fyne.Window) *gui {
 
 func ShowGUI() {
 	a := app.New()
+	resourceIconPng, err := fyne.LoadResourceFromPath("./gui/Icon.png")
+	if err != nil {
+		fmt.Println(err)
+	}
+	a.SetIcon(resourceIconPng)
 	w := a.NewWindow("Loci")
 	g := newGUI(w)
 
@@ -37,6 +44,7 @@ func ShowGUI() {
 		}),
 	))
 
+	w.Resize(fyne.NewSize(500, 320))
 	g.win.ShowAndRun()
 }
 
