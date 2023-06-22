@@ -17,7 +17,7 @@ import (
 
 type gui struct {
 	content *widget.Entry
-	uri fyne.URI
+	uri     fyne.URI
 
 	win fyne.Window
 }
@@ -43,13 +43,14 @@ func ShowGUI() {
 		log.Println("Content was: ", input.Text)
 	}))
 
-	hello := widget.NewLabel("Hello!")
+	responseBox := widget.NewLabel("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+
 	g.win.SetContent(container.NewVBox(
-		hello,
 		widget.NewButton("Choose .txt file", func() {
 			g.openFile()
 		}),
 		searchBox,
+		responseBox,
 	))
 
 	w.Resize(fyne.NewSize(500, 320))
