@@ -47,15 +47,15 @@ func ShowGUI() {
 	responseText.Wrapping = fyne.TextWrapWord
 
 	responseBox := container.NewScroll(responseText)
-    responseBox.SetMinSize(fyne.NewSize(500,200))
-
+	responseBox.SetMinSize(fyne.NewSize(500, 200))
 
 	g.win.SetContent(container.NewVBox(
-        // Use container.NewTabItemWithIcon contained in a container.NewAppTabs 
-        // if you want to add additional text to the icon.
-        widget.NewToolbar(
-            widget.NewToolbarAction(theme.InfoIcon(), func() {}),
-        ),
+		// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
+		// if you want to add additional text to the icon.
+		widget.NewToolbar(
+			widget.NewToolbarAction(theme.SettingsIcon(), func() {}),
+			widget.NewToolbarAction(theme.InfoIcon(), func() {}),
+		),
 		widget.NewButton("Choose .txt file", func() {
 			g.openFile()
 		}),
