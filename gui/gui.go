@@ -33,7 +33,7 @@ func ShowGUI() {
 		fmt.Println(err)
 	}
 	a.SetIcon(resourceIconPng)
-	w := a.NewWindow("Loci")
+	w := a.NewWindow("Macaw")
 	g := newGUI(w)
 
 	input := widget.NewEntry()
