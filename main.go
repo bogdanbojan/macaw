@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bogdanbojan/loci/gui"
+	"github.com/bogdanbojan/macaw/gui"
 	_ "github.com/mattn/go-sqlite3"
 )
 
