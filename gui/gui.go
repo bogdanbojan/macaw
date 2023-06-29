@@ -11,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 )
@@ -75,15 +76,22 @@ func (g *gui) openFile() {
 		if r == nil {
 			return
 		}
-
-		data, err := io.ReadAll(r)
-		_ = r.Close()
-
-		if err != nil {
-			dialog.ShowError(err, g.win)
-		} else {
-			g.uri = r.URI()
-			g.content.SetText(string(data))
-		}
+        g.uri = r.URI()
+		g.loadFile(r)
 	}, g.win)
+}
+
+func (g *gui) loadFile(r fyne.URIReadCloser) {
+	read, err := storage.Reader(g.uri)
+	if err != nil {
+		log.Println("Error opening resource", err)
+	}
+
+	defer read.Close()
+	data, err := io.ReadAll(read)
+	if err == nil {
+		log.Println("Error reading data", err)
+	}
+
+	fmt.Println(string(data))
 }
