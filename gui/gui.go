@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -17,8 +18,8 @@ import (
 )
 
 type gui struct {
-	content *widget.Entry
-	uri     fyne.URI
+	//	content *widget.Entry
+	uri fyne.URI
 
 	win fyne.Window
 }
@@ -44,7 +45,6 @@ func ShowGUI() {
 
 	contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
 		w.Clipboard().SetContent(input.Text)
-		log.Println(input.Text)
 	})
 	responseContainer := container.NewVBox()
 	responseBox := widget.NewLabel("")
@@ -61,6 +61,7 @@ func ShowGUI() {
 		responseContainer.Hidden = false
 		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
 		responseBox.Refresh()
+		// input.SetText("")
 		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
 
@@ -82,8 +83,14 @@ func ShowGUI() {
 	// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
 	// if you want to add additional text to the icon.
 	toolbar := widget.NewToolbar()
+
+	url, _ := url.Parse("https://github.com/bogdanbojan/macaw")
+	hyperlink := widget.NewHyperlink("Macaw github repository", url)
+
 	actionToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
-		dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
+		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
+		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0,40))
+
 	})
 	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {
 		widget.ShowPopUpAtPosition(dataFetchContainer, w.Canvas(), fyne.NewPos(0, 40))
