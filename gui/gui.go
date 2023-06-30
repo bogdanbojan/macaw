@@ -49,6 +49,12 @@ func ShowGUI() {
 
 	responseBox := container.NewScroll(responseText)
 	responseBox.SetMinSize(fyne.NewSize(500, 200))
+	wikiLabel := widget.NewLabel("Wikipedia")
+	wikiSlider := widget.NewSlider(0, 1)
+	localDictLabel := widget.NewLabel("Local dictionary")
+	localDictSlider := widget.NewSlider(0, 1)
+	onlineDictLabel := widget.NewLabel("Online dictionary")
+	onlineDictSlider := widget.NewSlider(0, 1)
 
 	g.win.SetContent(container.NewVBox(
 		// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
@@ -62,6 +68,10 @@ func ShowGUI() {
 		}),
 		searchBox,
 		responseBox,
+        // Construct enabling/ disabling of data fetching options.
+		container.NewAdaptiveGrid(2, wikiLabel, wikiSlider),
+		container.NewAdaptiveGrid(2, localDictLabel, localDictSlider),
+		container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider),
 	))
 
 	g.win.Resize(fyne.NewSize(500, 200))
