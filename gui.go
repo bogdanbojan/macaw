@@ -1,6 +1,6 @@
 //go:generate fyne bundle -append -o bundled.go Icon.png
 
-package gui
+package main
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ func newGUI(w fyne.Window) *gui {
 
 func ShowGUI() {
 	a := app.New()
-	resourceIconPng, err := fyne.LoadResourceFromPath("./gui/Icon.png")
+	resourceIconPng, err := fyne.LoadResourceFromPath("./Icon.png")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -52,8 +52,8 @@ func ShowGUI() {
 	responseContainer.Add(contentCopyButton)
 	responseContainer.Hidden = true
 
-    // TODOL: Duplicate code. Simplify this later.
-	input.OnSubmitted = func(string) { 
+	// TODOL: Duplicate code. Simplify this later.
+	input.OnSubmitted = func(string) {
 		if len(input.Text) == 0 {
 			dialog.ShowInformation("Search error", "Search entry was empty", w)
 			return
@@ -62,7 +62,7 @@ func ShowGUI() {
 		responseContainer.Hidden = false
 		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
 		responseBox.Refresh()
-    }
+	}
 
 	searchButton.OnTapped = func() {
 		if len(input.Text) == 0 {

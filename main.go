@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/bogdanbojan/macaw/gui"
 	_ "github.com/mattn/go-sqlite3"
 	gowiki "github.com/trietmn/go-wiki"
 )
@@ -15,7 +14,7 @@ type Dictionary struct {
 }
 
 func main() {
-	gui.ShowGUI()
+	ShowGUI()
 	// fileName := "words.txt"
 	// words := extractWords(fileName)
 	// apiRequest(words)
