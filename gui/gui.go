@@ -87,22 +87,23 @@ func ShowGUI() {
 	url, _ := url.Parse("https://github.com/bogdanbojan/macaw")
 	hyperlink := widget.NewHyperlink("Macaw github repository", url)
 
-	actionToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
-		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
-		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0,40))
-
+	chooseFileToolbar := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
+			g.openFile()
 	})
 	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {
 		widget.ShowPopUpAtPosition(dataFetchContainer, w.Canvas(), fyne.NewPos(0, 40))
 	})
+	infoToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
+		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
+		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0,40))
+
+	})
+	toolbar.Append(chooseFileToolbar)
 	toolbar.Append(settingsToolbar)
-	toolbar.Append(actionToolbar)
+	toolbar.Append(infoToolbar)
 
 	g.win.SetContent(container.NewVBox(
 		toolbar,
-		widget.NewButton("Choose .txt file", func() {
-			g.openFile()
-		}),
 		input,
 		searchButton,
 		responseContainer,
