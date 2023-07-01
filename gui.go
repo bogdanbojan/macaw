@@ -98,6 +98,19 @@ func ShowGUI() {
 		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
 
+	g.constructDataFetchContainer()
+	g.win.SetContent(container.NewVBox(
+		g.constructToolbar(),
+		input,
+		searchButton,
+		g.responseContainer,
+	))
+
+	g.win.Resize(fyne.NewSize(500, 200))
+	g.win.ShowAndRun()
+}
+
+func (g *gui) constructDataFetchContainer() {
 	// Data fetching options.
 	wikiLabel := widget.NewLabel("Wikipedia")
 	wikiSlider := widget.NewSlider(0, 1)
@@ -113,6 +126,10 @@ func ShowGUI() {
 	dataFetchContainer.Add(container.NewAdaptiveGrid(2, localDictLabel, localDictSlider))
 	dataFetchContainer.Add(container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider))
 
+	g.dataFetchContainer = dataFetchContainer
+}
+
+func (g *gui) constructToolbar() *widget.Toolbar {
 	// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
 	// if you want to add additional text to the icon.
 	toolbar := widget.NewToolbar()
@@ -124,26 +141,18 @@ func ShowGUI() {
 		g.openFile()
 	})
 	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {
-		widget.ShowPopUpAtPosition(dataFetchContainer, w.Canvas(), fyne.NewPos(0, 40))
+		widget.ShowPopUpAtPosition(g.dataFetchContainer, g.win.Canvas(), fyne.NewPos(0, 40))
 	})
 	infoToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
 		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
-		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0, 40))
+		widget.ShowPopUpAtPosition(hyperlink, g.win.Canvas(), fyne.NewPos(0, 40))
 
 	})
 	toolbar.Append(chooseFileToolbar)
 	toolbar.Append(settingsToolbar)
 	toolbar.Append(infoToolbar)
 
-	g.win.SetContent(container.NewVBox(
-		toolbar,
-		input,
-		searchButton,
-		responseContainer,
-	))
-
-	g.win.Resize(fyne.NewSize(500, 200))
-	g.win.ShowAndRun()
+	return toolbar
 }
 
 func (g *gui) openFile() {
