@@ -52,6 +52,18 @@ func ShowGUI() {
 	responseContainer.Add(contentCopyButton)
 	responseContainer.Hidden = true
 
+    // TODOL: Duplicate code. Simplify this later.
+	input.OnSubmitted = func(string) { 
+		if len(input.Text) == 0 {
+			dialog.ShowInformation("Search error", "Search entry was empty", w)
+			return
+		}
+
+		responseContainer.Hidden = false
+		responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
+		responseBox.Refresh()
+    }
+
 	searchButton.OnTapped = func() {
 		if len(input.Text) == 0 {
 			dialog.ShowInformation("Search error", "Search entry was empty", w)
@@ -88,14 +100,14 @@ func ShowGUI() {
 	hyperlink := widget.NewHyperlink("Macaw github repository", url)
 
 	chooseFileToolbar := widget.NewToolbarAction(theme.FolderOpenIcon(), func() {
-			g.openFile()
+		g.openFile()
 	})
 	settingsToolbar := widget.NewToolbarAction(theme.SettingsIcon(), func() {
 		widget.ShowPopUpAtPosition(dataFetchContainer, w.Canvas(), fyne.NewPos(0, 40))
 	})
 	infoToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
 		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
-		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0,40))
+		widget.ShowPopUpAtPosition(hyperlink, w.Canvas(), fyne.NewPos(0, 40))
 
 	})
 	toolbar.Append(chooseFileToolbar)
@@ -112,6 +124,7 @@ func ShowGUI() {
 	g.win.Resize(fyne.NewSize(500, 200))
 	g.win.ShowAndRun()
 }
+
 func (g *gui) openFile() {
 	dialog.ShowFileOpen(func(r fyne.URIReadCloser, err error) {
 		if err != nil {
