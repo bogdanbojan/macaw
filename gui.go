@@ -20,7 +20,6 @@ import (
 type gui struct {
 	//	content *widget.Entry
 	dataFetchContainer *fyne.Container
-	responseContainer  *fyne.Container
 	uri                fyne.URI
 
 	win fyne.Window
@@ -45,24 +44,20 @@ func ShowGUI() {
 
 	searchButton := widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
 
-	contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
-		w.Clipboard().SetContent(input.Text)
-	})
-	responseContainer := container.NewVBox()
-	responseBox := container.NewScroll(widget.NewLabel(""))
-	responseContainer.Add(responseBox)
-	responseContainer.Add(contentCopyButton)
-	responseContainer.Hidden = true
-    g.responseContainer = responseContainer
-
-	// TODOL: Duplicate code. Simplify this later.
+	// contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
+	// 	w.Clipboard().SetContent(input.Text)
+	// })
+	initResponse := widget.NewLabel("")
+	responseBox := container.NewVScroll(initResponse)
+	responseBox.Hide()
+    
+	// TODO: Duplicate code. Simplify this later.
 	input.OnSubmitted = func(string) {
 		if len(input.Text) == 0 {
 			dialog.ShowInformation("Search error", "Search entry was empty", w)
 			return
 		}
 
-		responseContainer.Hidden = false
 		// responseBox.Text = fmt.Sprintf("You wrote: %s", input.Text)
 		responseBox.Refresh()
 	}
@@ -73,40 +68,51 @@ func ShowGUI() {
 			return
 		}
 
-		responseContainer.Hidden = false
+		responseBox.Show()
 
 		res, err := SearchWiki(input.Text)
 		if err != nil {
-			log.Println(err)
+			win := g.win
+			win.Resize(fyne.NewSize(500, 150))
+			responseBox.SetMinSize(fyne.NewSize(500, 32))
+
 			response := widget.NewLabel("Could not find the wikipedia summary for the given keyword.")
-			responseBox.Content = container.NewScroll(response)
-			responseBox.SetMinSize(responseBox.Content.Size())
-			//responseContainer = container.NewBorder(container.NewVBox(input, searchButton), contentCopyButton, nil, nil, nil)
+			responseBox.Content = response
+
 			responseBox.Refresh()
 			return
 		}
-		log.Println(res)
-		log.Println("=========================================================")
 
 		responseBox.SetMinSize(fyne.NewSize(500, 200))
+
 		response := widget.NewLabel(res)
 		response.Wrapping = fyne.TextWrapWord
-		responseBox.Content = container.NewScroll(response)
+		responseBox.Content = response
+
 		responseBox.Refresh()
-		// responseBox.Text = fmt.Sprint(res)
-		// input.SetText("")
-		//	responseBox.Content = container.NewScroll(widget.NewLabel("Test content"))
 	}
 
 	g.constructDataFetchContainer()
-	g.win.SetContent(container.NewVBox(
-		g.constructToolbar(),
-		input,
-		searchButton,
-		g.responseContainer,
-	))
+	// 	g.win.SetContent(container.NewVBox(
+	// 		g.constructToolbar(),
+	// 		input,
+	// 		searchButton,
+	// 		responseBox,
+	// 	))
 
-	g.win.Resize(fyne.NewSize(500, 200))
+	g.win.SetContent(
+		container.NewBorder(
+			g.constructToolbar(),
+			responseBox,
+			nil,
+			nil,
+			container.NewVBox(
+				input,
+				searchButton,
+			),
+		),
+	)
+	g.win.Resize(fyne.NewSize(500, 150))
 	g.win.ShowAndRun()
 }
 
