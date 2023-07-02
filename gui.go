@@ -49,8 +49,21 @@ func ShowGUI() {
 	// })
 	initResponse := widget.NewLabel("")
 	responseBox := container.NewVScroll(initResponse)
-	responseBox.Hide()
-    
+	// responseBox.Hide()
+
+	inputSearch := container.NewVBox(
+		input,
+		searchButton,
+	)
+
+	bigContainer := container.NewBorder(
+		g.constructToolbar(),
+		responseBox,
+		nil,
+		nil,
+		inputSearch,
+	)
+
 	// TODO: Duplicate code. Simplify this later.
 	input.OnSubmitted = func(string) {
 		if len(input.Text) == 0 {
@@ -68,7 +81,7 @@ func ShowGUI() {
 			return
 		}
 
-		responseBox.Show()
+		//		responseBox.Show()
 
 		res, err := SearchWiki(input.Text)
 		if err != nil {
@@ -77,6 +90,7 @@ func ShowGUI() {
 			responseBox.SetMinSize(fyne.NewSize(500, 32))
 
 			response := widget.NewLabel("Could not find the wikipedia summary for the given keyword.")
+			response.Wrapping = fyne.TextWrapWord
 			responseBox.Content = response
 
 			responseBox.Refresh()
@@ -101,17 +115,9 @@ func ShowGUI() {
 	// 	))
 
 	g.win.SetContent(
-		container.NewBorder(
-			g.constructToolbar(),
-			responseBox,
-			nil,
-			nil,
-			container.NewVBox(
-				input,
-				searchButton,
-			),
-		),
+		bigContainer,
 	)
+
 	g.win.Resize(fyne.NewSize(500, 150))
 	g.win.ShowAndRun()
 }
