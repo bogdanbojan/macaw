@@ -1,8 +1,14 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
 	gowiki "github.com/trietmn/go-wiki"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type Dictionary struct {
@@ -13,6 +19,7 @@ type Dictionary struct {
 
 func main() {
 	ShowGUI()
+
 	// fileName := "words.txt"
 	// words := extractWords(fileName)
 	// apiRequest(words)
@@ -38,60 +45,59 @@ func main() {
 //
 //		return words
 //	}
+// func apiRequest(words []string) {
+// 	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
+// 	for _, w := range words {
+// 		resp, err := http.Get(reqURL + w)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
 //
-//	func apiRequest(words []string) {
-//		reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
-//		for _, w := range words {
-//			resp, err := http.Get(reqURL + w)
-//			if err != nil {
-//				fmt.Println(err)
-//			}
-//
-//			handleLocalResponse(w)
-//			handleServerResponse(resp, w)
-//		}
-//	}
-//
-//	func handleLocalResponse(word string) {
-//		file := "./sql-scripts/sqlite_websters_unabridged_dictionary.sql"
-//		db, err := sql.Open("sqlite3", file)
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//
-//	    // Setup for MYSQL with Docker-Compose.
-//		//	db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/webster_dictionary")
-//		//	if err != nil {
-//		//		fmt.Println(err)
-//		//	}
-//		//	defer db.Close()
-//
-//		err = db.Ping()
-//		if err != nil {
-//			fmt.Println(err)
-//			fmt.Println("Cannot ping db")
-//		}
-//
-//		res, err := db.Query(fmt.Sprintf(`SELECT entries.definition FROM entries WHERE entries.word = "%s"`, cases.Title(language.AmericanEnglish).String(word)))
-//
-//		if err != nil {
-//			fmt.Println(err)
-//		}
-//
-//		for res.Next() {
-//			var dict Dictionary
-//			err := res.Scan(&dict.Definition)
-//
-//			if err != nil {
-//				fmt.Println(err)
-//			}
-//
-//			fmt.Println("Definition: ", dict)
-//		}
-//
-//		fmt.Println("==============================================================")
-//
+// 		handleLocalResponse(w)
+// 		handleServerResponse(resp, w)
+// 	}
 // }
+
+func handleLocalResponse(word string) ([]string, error) {
+	var dict Dictionary
+	var definitions []string
+
+	file := "./sql-scripts/sqlite_websters_unabridged_dictionary.sql"
+	db, err := sql.Open("sqlite3", file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Setup for MYSQL with Docker-Compose.
+	//	db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/webster_dictionary")
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := db.Query(fmt.Sprintf(`SELECT entries.definition FROM entries WHERE entries.word = "%s"`, cases.Title(language.AmericanEnglish).String(word)))
+	if err != nil {
+		return nil, err
+	}
+
+	for res.Next() {
+		err := res.Scan(&dict.Definition)
+
+		if err != nil {
+			return nil, err
+		}
+		definitions = append(definitions, dict.Definition)
+		log.Println(dict.Definition)
+	}
+
+	return definitions, nil
+}
+
 //
 //	func handleServerResponse(resp *http.Response, word string) {
 //		defer resp.Body.Close()

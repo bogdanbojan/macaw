@@ -1,9 +1,8 @@
-//go:generate fyne bundle -append -o bundled.go Icon.png
-
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,14 +10,19 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"golang.design/x/hotkey"
 )
 
 type gui struct {
-	searchEntry  *widget.Entry
-	searchButton *widget.Button
-	searchResult *widget.Label
-
+	search
 	win fyne.Window
+}
+
+type search struct {
+	entry        *widget.Entry
+	button       *widget.Button
+	result       *widget.Label
+	resultScroll *container.Scroll
 }
 
 func ShowGUI() {
@@ -34,55 +38,77 @@ func ShowGUI() {
 	fnResize := func() {
 		g.win.Resize(fyne.NewSize(
 			g.win.Canvas().Size().Width,
-			g.win.Content().MinSize().Height,
+			300,
+			//		g.win.Content().MinSize().Height,
 		))
-		g.win.Content().Refresh()
-		g.win.Canvas().Refresh(g.searchResult)
-		g.searchResult.Refresh()
-		g.searchEntry.Refresh()
 	}
 
-	// TODO: make a struct to call search.Button and search.Result, etc.
-	// Or just use g.Entry, g.Result..
-	g.searchEntry = widget.NewEntry()
-	g.searchEntry.SetPlaceHolder("Enter a word to search for...")
+	g.search.entry = widget.NewEntry()
+	g.search.entry.SetPlaceHolder("Enter a word to search for...")
 
-	g.searchButton = widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
+	g.search.button = widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
 
-	g.searchResult = widget.NewLabel("")
-	g.searchResult.Wrapping = fyne.TextWrapWord
+	g.search.result = widget.NewLabel("")
+	g.search.result.Wrapping = fyne.TextWrapWord
+	g.search.resultScroll = container.NewVScroll(g.search.result)
 
-    // TODO: Implement the copy button later.
-	// 	contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
-	// 		w.Clipboard().SetContent(g.searchEntry.Text)
-	// 	})
+	// TODO: Implement the copy button later.
+	// contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
+	// 	g.win.Clipboard().SetContent(g.search.result.Text)
+	// })
 
-	g.searchEntry.OnSubmitted = func(string) {
-		if len(g.searchEntry.Text) == 0 {
+	g.search.entry.OnSubmitted = func(string) {
+		if len(g.search.entry.Text) == 0 {
 			dialog.ShowInformation("Search error", "Empty search", g.win)
 			return
 		}
 
-		res, err := SearchWiki(g.searchEntry.Text)
-        if err != nil {
-            g.searchResult.SetText("Word not found")
-            return
-        }
-		g.searchResult.SetText(res)
+		// res, err := SearchWiki(g.search.entry.Text)
+		// if err != nil {
+		// 	g.search.result.SetText("Word not found")
+		// 	return
+		// }
+
+		def, err := handleLocalResponse(g.search.entry.Text)
+		if err != nil || def == nil {
+			g.search.result.SetText("Word not found")
+			return
+		}
+
+		var res string
+		for i, v := range def {
+			res += fmt.Sprintf("[%d] %s \n", i, v)
+		}
+
+		g.search.result.SetText(res)
 		fnResize()
 	}
 
 	g.win.SetContent(container.NewBorder(
-		g.searchEntry,
+		g.search.entry,
 		nil, nil, nil,
-		g.searchResult,
+		g.search.resultScroll,
 	))
+
+	go func() {
+		// If numlock is on this will not take effect.
+		// Windows+Shift+J
+		hk := hotkey.New([]hotkey.Modifier{hotkey.ModShift, hotkey.Mod4}, hotkey.KeyJ)
+		if err := hk.Register(); err != nil {
+			log.Println("Hotkey registration failed")
+		}
+		// Start listen hotkey event whenever it is ready.
+		for range hk.Keydown() {
+			g.win.RequestFocus()
+			g.win.Canvas().Focus(g.search.entry)
+			log.Println("You pressed the keyboardshortcut")
+		}
+	}()
+
 	fnResize()
 	g.win.Resize(fyne.NewSize(500, 150))
 	g.win.ShowAndRun()
 }
-
-
 
 // TODO: Postpone the features below implementation until we solve the keyboard shortcut problem.
 // ===========================================================================

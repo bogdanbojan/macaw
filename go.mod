@@ -6,6 +6,7 @@ require (
 	fyne.io/fyne/v2 v2.3.5
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/trietmn/go-wiki v1.0.1
+	golang.design/x/hotkey v0.4.1
 )
 
 require (
