@@ -1,8 +1,14 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
+	"log"
+
 	_ "github.com/mattn/go-sqlite3"
 	gowiki "github.com/trietmn/go-wiki"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type Dictionary struct {
@@ -39,19 +45,17 @@ func main() {
 //
 //		return words
 //	}
+// func apiRequest(words []string) {
+// 	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
+// 	for _, w := range words {
+// 		resp, err := http.Get(reqURL + w)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
 //
-//	func apiRequest(words []string) {
-//		reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
-//		for _, w := range words {
-//			resp, err := http.Get(reqURL + w)
-//			if err != nil {
-//				fmt.Println(err)
-//			}
-//
-//			handleLocalResponse(w)
-//			handleServerResponse(resp, w)
-//		}
-//	}
+// 		handleLocalResponse(w)
+// 		handleServerResponse(resp, w)
+// 	}
 // }
 
 func handleLocalResponse(word string) ([]string, error) {
