@@ -14,11 +14,15 @@ import (
 )
 
 type gui struct {
-	searchEntry  *widget.Entry
-	searchButton *widget.Button
-	searchResult *widget.Label
-
+	search
 	win fyne.Window
+}
+
+type search struct {
+	entry        *widget.Entry
+	button       *widget.Button
+	result       *widget.Label
+	resultScroll *container.Scroll
 }
 
 func ShowGUI() {
