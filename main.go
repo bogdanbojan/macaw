@@ -2,14 +2,20 @@ package main
 
 import (
 	"database/sql"
+	_ "embed"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 	gowiki "github.com/trietmn/go-wiki"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+//go:embed sql-scripts/sqlite_websters_unabridged_dictionary.sql
+var embedSQL []byte
 
 type Dictionary struct {
 	Word       string
@@ -62,11 +68,24 @@ func handleLocalResponse(word string) ([]string, error) {
 	var dict Dictionary
 	var definitions []string
 
-	file := "./sql-scripts/sqlite_websters_unabridged_dictionary.sql"
-	db, err := sql.Open("sqlite3", file)
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return nil, err
 	}
+	defer os.RemoveAll(tmpDir)
+
+	tmpFile := filepath.Join(tmpDir, "tmpDict.sql")
+
+	err = os.WriteFile(tmpFile, embedSQL, 0o400)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := sql.Open("sqlite3", tmpFile)
+	if err != nil {
+		return nil, err
+	}
+    defer db.Close()
 
 	// Setup for MYSQL with Docker-Compose.
 	//	db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/webster_dictionary")
@@ -74,11 +93,6 @@ func handleLocalResponse(word string) ([]string, error) {
 	//		fmt.Println(err)
 	//	}
 	//	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
 
 	res, err := db.Query(fmt.Sprintf(`SELECT entries.definition FROM entries WHERE entries.word = "%s"`, cases.Title(language.AmericanEnglish).String(word)))
 	if err != nil {
