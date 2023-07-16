@@ -101,7 +101,6 @@ func ShowGUI() {
 		for range hk.Keydown() {
 			g.win.RequestFocus()
 			g.win.Canvas().Focus(g.search.entry)
-			log.Println("You pressed the keyboardshortcut")
 		}
 	}()
 
