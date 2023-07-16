@@ -7,7 +7,7 @@ name = Macaw
 GOBIN ?= ~/go/bin/
 
 bundle:
-	# Bundle the correct logo into sparta/src/bundled/bundled.go
+	# Bundle the correct logo. 
 	${GOBIN}fyne bundle -package assets -name AppIcon ${icon} > internal/assets/bundled.go
 
 check:
