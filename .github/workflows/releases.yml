@@ -25,5 +25,5 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-             /home/runner/work/macaw/macaw/fyne-cross/dist/windows-amd64/macaw-windows.tar.xz
              /home/runner/work/macaw/macaw/fyne-cross/dist/linux-amd64/macaw-linux.tar.xz
+             /home/runner/work/macaw/macaw/fyne-cross/dist/windows-amd64/macaw-windows.zip
