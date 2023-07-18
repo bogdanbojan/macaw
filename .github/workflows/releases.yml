@@ -20,4 +20,4 @@ jobs:
           # TODO: Use this after we settle on the proper gh workflow.
           # if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ./fyne-cross/dist/linux-amd64
+          files: /home/runner/work/macaw/macaw/fyne-cross/dist/linux-amd64/macaw.tar.xz
