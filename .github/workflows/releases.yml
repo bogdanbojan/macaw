@@ -17,7 +17,9 @@ jobs:
       - name: Install fyne-cross
         run: go install github.com/fyne-io/fyne-cross@latest
       - name: Build tar
-        run: make linux
+        run: |
+          make linux
+          make windows
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
