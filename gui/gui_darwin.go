@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/bogdanbojan/macaw/api"
 	"golang.design/x/hotkey"
 )
 
@@ -71,7 +72,7 @@ func ShowGUI() {
 		// 	return
 		// }
 
-		def, err := handleLocalResponse(g.search.entry.Text)
+		def, err := api.HandleLocalResponse(g.search.entry.Text)
 		if err != nil || def == nil {
 			g.search.result.SetText("Word not found")
 			return
