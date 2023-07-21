@@ -43,3 +43,6 @@ run:
 	go run .
 tests:
 	go test ./...
+
+docker-binaries:
+	docker build --output=bin --target=binaries -t docker-binaries .
