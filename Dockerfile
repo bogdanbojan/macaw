@@ -11,15 +11,19 @@ RUN apt-get update && \
     cd zig-linux-x86_64-0.9.1 && \
     ln -s $(pwd)/zig /usr/bin/
 
-COPY /SDKs /SDKs
+WORKDIR /go/macaw/
 
 # BUILD MACOS BINARY
 ############################################################################### 
 
+ENV OSX_SDK="MacOSX11.3.sdk"
+ENV OSX_SDK_URL="https://github.com/joseluisq/macosx-sdks/releases/download/11.3/${OSX_SDK}.tar.xz"
+
+RUN curl -sSL "$OSX_SDK_URL" -o "/$OSX_SDK.tar.xz"
+RUN mkdir /osxsdk && tar -xf "/$OSX_SDK.tar.xz" -C "/osxsdk"
+
 ENV MACOS_MIN_VER=10.14 
-ENV MACOS_SDK_PATH="/SDKs/MacOSX11.sdk"
- 
-WORKDIR /go/macaw/
+ENV MACOS_SDK_PATH="/osxsdk/MacOSX11.3.sdk"
 
 RUN mkdir -p dist/darwin-amd64 
  
