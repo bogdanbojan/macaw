@@ -18,14 +18,35 @@ import (
 
 type gui struct {
 	search
-	win fyne.Window
+	dataFetchContainer *fyne.Container
+	tabs               *container.AppTabs
+	URI                fyne.URI
+	win                fyne.Window
 }
 
 type search struct {
-	entry        *widget.Entry
-	button       *widget.Button
+	entry  *widget.Entry
+	button *widget.Button
+	sources
+}
+
+type sources struct {
+	localDict
+	wikipedia
+}
+
+type localDict struct {
 	result       *widget.Label
 	resultScroll *container.Scroll
+	slider       *widget.Slider
+}
+
+// TODO: add onlineDict support
+
+type wikipedia struct {
+	result       *widget.Label
+	resultScroll *container.Scroll
+	slider       *widget.Slider
 }
 
 func ShowGUI() {
