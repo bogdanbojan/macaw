@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	gowiki "github.com/trietmn/go-wiki"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -67,4 +68,13 @@ func HandleLocalResponse(word string) ([]string, error) {
 	}
 
 	return definitions, nil
+}
+
+func SearchWiki(word string) (string, error) {
+	res, err := gowiki.Summary(word, 5, -1, false, true)
+	if err != nil {
+		return "", err
+	}
+
+	return res, nil
 }
