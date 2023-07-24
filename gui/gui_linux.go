@@ -83,16 +83,10 @@ func ShowGUI() {
 	g.search.wikipedia.result.Wrapping = fyne.TextWrapWord
 	g.search.wikipedia.resultScroll = container.NewVScroll(g.search.wikipedia.result)
 
-	// TODO: Implement the copy button later.
-	// contentCopyButton := widget.NewButtonWithIcon("Copy to clipboard", theme.ContentCopyIcon(), func() {
-	// 	g.win.Clipboard().SetContent(g.search.localDict.result.Text)
-	// })
-
 	tabLocalDict := container.NewTabItem("Local dictionary", g.search.localDict.resultScroll)
 	tabWiki := container.NewTabItem("Wikipedia", g.search.wikipedia.resultScroll)
 
 	g.tabs = container.NewAppTabs(tabLocalDict, tabWiki)
-	//	g.tabs.DisableItem(tabLocalDict)
 	g.tabs.DisableItem(tabWiki)
 	g.tabs.SetTabLocation(container.TabLocationTop)
 
@@ -205,8 +199,6 @@ func (g *gui) constructDataFetchContainer() {
 }
 
 func (g *gui) constructToolbar() *widget.Toolbar {
-	// Use container.NewTabItemWithIcon contained in a container.NewAppTabs
-	// if you want to add additional text to the icon.
 	toolbar := widget.NewToolbar()
 
 	url, _ := url.Parse("https://github.com/bogdanbojan/macaw")
@@ -219,7 +211,6 @@ func (g *gui) constructToolbar() *widget.Toolbar {
 		widget.ShowPopUpAtPosition(g.dataFetchContainer, g.win.Canvas(), fyne.NewPos(0, 40))
 	})
 	infoToolbar := widget.NewToolbarAction(theme.InfoIcon(), func() {
-		// dialog.ShowInformation("About", "https://github.com/bogdanbojan/macaw", w)
 		widget.ShowPopUpAtPosition(hyperlink, g.win.Canvas(), fyne.NewPos(0, 40))
 
 	})
