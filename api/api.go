@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -64,7 +63,6 @@ func HandleLocalResponse(word string) ([]string, error) {
 			return nil, err
 		}
 		definitions = append(definitions, dict.Definition)
-		log.Println(dict.Definition)
 	}
 
 	return definitions, nil
