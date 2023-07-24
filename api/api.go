@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
+	gowiki "github.com/trietmn/go-wiki"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
@@ -63,8 +63,16 @@ func HandleLocalResponse(word string) ([]string, error) {
 			return nil, err
 		}
 		definitions = append(definitions, dict.Definition)
-		log.Println(dict.Definition)
 	}
 
 	return definitions, nil
+}
+
+func SearchWiki(word string) (string, error) {
+	res, err := gowiki.Summary(word, 5, -1, false, true)
+	if err != nil {
+		return "", err
+	}
+
+	return res, nil
 }
