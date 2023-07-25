@@ -1,7 +1,7 @@
 FROM golang:1.20.6-bullseye AS base
 
 RUN git clone https://github.com/bogdanbojan/macaw.git && \ 
-    cd ./macaw \
+    cd ./macaw 
 
 RUN apt-get update && \ 
     apt-get install xz-utils && \
