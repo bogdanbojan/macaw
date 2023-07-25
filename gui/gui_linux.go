@@ -139,7 +139,7 @@ func ShowGUI() {
 				return
 			}
 
-			g.search.onlineDict.result.SetText(fmt.Sprintf("%+v", res[0]))
+			g.search.onlineDict.result.SetText(res[0])
 		}
 
 		if g.wikipedia.slider.Value == 1 {
