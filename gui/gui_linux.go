@@ -35,6 +35,7 @@ type search struct {
 
 type sources struct {
 	localDict
+	onlineDict
 	wikipedia
 }
 
@@ -44,7 +45,11 @@ type localDict struct {
 	slider       *widget.Slider
 }
 
-// TODO: add onlineDict support
+type onlineDict struct {
+	result       *widget.Label
+	resultScroll *container.Scroll
+	slider       *widget.Slider
+}
 
 type wikipedia struct {
 	result       *widget.Label
@@ -75,18 +80,25 @@ func ShowGUI() {
 
 	g.search.button = widget.NewButtonWithIcon("Search", theme.SearchIcon(), nil)
 
+	// TODO: Export this intialization somewhere else.
 	g.search.localDict.result = widget.NewLabel("")
 	g.search.localDict.result.Wrapping = fyne.TextWrapWord
 	g.search.localDict.resultScroll = container.NewVScroll(g.search.localDict.result)
+
+	g.search.onlineDict.result = widget.NewLabel("")
+	g.search.onlineDict.result.Wrapping = fyne.TextWrapWord
+	g.search.onlineDict.resultScroll = container.NewVScroll(g.search.onlineDict.result)
 
 	g.search.wikipedia.result = widget.NewLabel("")
 	g.search.wikipedia.result.Wrapping = fyne.TextWrapWord
 	g.search.wikipedia.resultScroll = container.NewVScroll(g.search.wikipedia.result)
 
 	tabLocalDict := container.NewTabItem("Local dictionary", g.search.localDict.resultScroll)
+	tabOnlineDict := container.NewTabItem("Online dictionary", g.search.onlineDict.resultScroll)
 	tabWiki := container.NewTabItem("Wikipedia", g.search.wikipedia.resultScroll)
 
-	g.tabs = container.NewAppTabs(tabLocalDict, tabWiki)
+	g.tabs = container.NewAppTabs(tabLocalDict, tabOnlineDict, tabWiki)
+	g.tabs.DisableItem(tabOnlineDict)
 	g.tabs.DisableItem(tabWiki)
 	g.tabs.SetTabLocation(container.TabLocationTop)
 
@@ -96,6 +108,10 @@ func ShowGUI() {
 			return
 		}
 
+		// TODO: Convert this sequence into a switch statement.
+		// TODO: Think about using something other than g.tabs.Items[idx]
+		// to select the tab items - it becomes problematic when reading
+		// the code/ adding new tab items.
 		if g.localDict.slider.Value == 1 {
 			g.tabs.EnableItem(g.tabs.Items[0])
 
@@ -114,8 +130,20 @@ func ShowGUI() {
 
 		}
 
-		if g.wikipedia.slider.Value == 1 {
+		if g.onlineDict.slider.Value == 1 {
 			g.tabs.EnableItem(g.tabs.Items[1])
+
+			res, err := api.ApiRequest([]string{g.search.entry.Text})
+			if err != nil {
+				g.search.onlineDict.result.SetText("Word not found")
+				return
+			}
+
+			g.search.onlineDict.result.SetText(fmt.Sprintf("%+v", res[0]))
+		}
+
+		if g.wikipedia.slider.Value == 1 {
+			g.tabs.EnableItem(g.tabs.Items[2])
 
 			res, err := api.SearchWiki(g.search.entry.Text)
 			if err != nil {
@@ -168,7 +196,7 @@ func (g *gui) listenSliderChange() {
 		g.tabs.SelectIndex(0)
 	}
 
-	g.wikipedia.slider.OnChanged = func(f float64) {
+	g.onlineDict.slider.OnChanged = func(f float64) {
 		if f == 0 {
 			g.tabs.DisableItem(g.tabs.Items[1])
 			return
@@ -177,23 +205,32 @@ func (g *gui) listenSliderChange() {
 		g.tabs.EnableItem(g.tabs.Items[1])
 	}
 
+	g.wikipedia.slider.OnChanged = func(f float64) {
+		if f == 0 {
+			g.tabs.DisableItem(g.tabs.Items[2])
+			return
+		}
+		g.tabs.SelectIndex(2)
+		g.tabs.EnableItem(g.tabs.Items[2])
+	}
+
 }
 
 func (g *gui) constructDataFetchContainer() {
 	// Data fetching options.
-	wikiLabel := widget.NewLabel("Wikipedia")
-	g.wikipedia.slider = widget.NewSlider(0, 1)
 	localDictLabel := widget.NewLabel("Local dictionary")
 	g.localDict.slider = widget.NewSlider(0, 1)
 	onlineDictLabel := widget.NewLabel("Online dictionary")
-	onlineDictSlider := widget.NewSlider(0, 1)
+	g.onlineDict.slider = widget.NewSlider(0, 1)
+	wikiLabel := widget.NewLabel("Wikipedia")
+	g.wikipedia.slider = widget.NewSlider(0, 1)
 
 	dataFetchContainer := container.NewVBox()
 	dataFetchContainer.Add(widget.NewLabel("Data fetching options"))
 	dataFetchContainer.Add(widget.NewSeparator())
-	dataFetchContainer.Add(container.NewAdaptiveGrid(2, wikiLabel, g.wikipedia.slider))
 	dataFetchContainer.Add(container.NewAdaptiveGrid(2, localDictLabel, g.localDict.slider))
-	dataFetchContainer.Add(container.NewAdaptiveGrid(2, onlineDictLabel, onlineDictSlider))
+	dataFetchContainer.Add(container.NewAdaptiveGrid(2, onlineDictLabel, g.onlineDict.slider))
+	dataFetchContainer.Add(container.NewAdaptiveGrid(2, wikiLabel, g.wikipedia.slider))
 
 	g.dataFetchContainer = dataFetchContainer
 }
