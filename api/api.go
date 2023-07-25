@@ -107,6 +107,79 @@ func HandleLocalResponse(word string) ([]string, error) {
 	return definitions, nil
 }
 
+func ApiRequest(words []string) ([]string, error) {
+	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
+	var response []string
+	for _, w := range words {
+		resp, err := http.Get(reqURL + w)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		// TODO: Handle error when request does not find the word.
+		s, err := HandleServerResponse(resp, w)
+		if err != nil {
+			return nil, err
+		}
+		response = append(response, s)
+	}
+	return response, nil
+
+}
+
+// func ApiRequest(words []string) ([]Response, error) {
+// 	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
+// 	var response [][]Response
+// 	for _, w := range words {
+// 		resp, err := http.Get(reqURL + w)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+//
+// 		// TODO: Handle error when request does not find the word.
+// 		s, err := HandleServerResponse(resp, w)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		response = append(response, s)
+// 	}
+// 	return response[0], nil
+//
+// }
+
+// func HandleServerResponse(resp *http.Response, word string) ([]Response, error) {
+// 	defer resp.Body.Close()
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	var r []Response
+// 	err = json.Unmarshal(body, &r)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	return r, nil
+// }
+
+func HandleServerResponse(resp *http.Response, word string) (string, error) {
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	var r []Response
+	err = json.Unmarshal(body, &r)
+	if err != nil {
+		return "", err
+	}
+
+	s, _ := json.MarshalIndent(r, "", "\t")
+	return string(s), nil
+}
+
 func SearchWiki(word string) (string, error) {
 	res, err := gowiki.Summary(word, 5, -1, false, true)
 	if err != nil {
