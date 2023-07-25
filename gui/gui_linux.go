@@ -108,10 +108,6 @@ func ShowGUI() {
 			return
 		}
 
-		// TODO: Convert this sequence into a switch statement.
-		// TODO: Think about using something other than g.tabs.Items[idx]
-		// to select the tab items - it becomes problematic when reading
-		// the code/ adding new tab items.
 		if g.localDict.slider.Value == 1 {
 			g.tabs.EnableItem(g.tabs.Items[0])
 
