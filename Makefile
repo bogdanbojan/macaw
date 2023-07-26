@@ -12,7 +12,7 @@ run:
 	go run ./cmd/main.go
 	
 bundle:
-	${GOBIN}fyne bundle -package assets -name AppIcon ${icon} > internal/assets/bundled.go
+	${GOBIN}fyne bundle -package assets -name AppIcon ${icon} > ./gui/assets/bundled.go
 
 check:
 	gofmt -s -w ./..
@@ -23,6 +23,6 @@ check:
 
 tests:
 	go test ./...
-
+ 
 docker-binaries:
 	docker buildx build -f zarf/docker/Dockerfile --output bin --target binaries .
