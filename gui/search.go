@@ -31,9 +31,6 @@ func (g *gui) initSearchWidgets() {
 	g.search.wikipedia.resultScroll = container.NewVScroll(g.search.wikipedia.result)
 }
 
-// TODO: Fix bug regarding the search not working properly on the online dictionary
-// when the local dictionary does not find the word. It has to do with the return
-// statement in the conditionals.
 func (g *gui) searchSources(string) {
 	if len(g.search.entry.Text) == 0 {
 		dialog.ShowInformation("Search error", "Empty search", g.win)
@@ -41,47 +38,58 @@ func (g *gui) searchSources(string) {
 	}
 
 	if g.localDict.slider.Value == 1 {
-		g.tabs.EnableItem(g.tabs.Items[0])
-
-		def, err := api.HandleLocalResponse(g.search.entry.Text)
-		if err != nil || def == nil {
-			g.search.localDict.result.SetText("Word not found")
-			return
-		}
-
-		var res string
-		for i, v := range def {
-			res += fmt.Sprintf("[%d] %s \n", i, v)
-		}
-
-		g.search.localDict.result.SetText(res)
-
+		g.searchLocalDict()
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.tabs.EnableItem(g.tabs.Items[1])
-
-		res, err := api.ApiRequest([]string{g.search.entry.Text})
-		if err != nil {
-			g.search.onlineDict.result.SetText("Word not found")
-			return
-		}
-        log.Println(g.search.entry.Text)
-
-		g.search.onlineDict.result.SetText(res[0])
+		g.searchOnlineDict()
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.tabs.EnableItem(g.tabs.Items[2])
-
-		res, err := api.SearchWiki(g.search.entry.Text)
-		if err != nil {
-			g.search.wikipedia.result.SetText("Summary for word not found")
-			return
-		}
-		g.search.wikipedia.result.SetText(res)
+		g.searchWikipedia()
 	}
 
 	g.tabs.Show()
 	g.winResize()
+}
+
+func (g *gui) searchLocalDict() {
+	g.tabs.EnableItem(g.tabs.Items[0])
+
+	def, err := api.HandleLocalResponse(g.search.entry.Text)
+	if err != nil || def == nil {
+		g.search.localDict.result.SetText("Word not found")
+		return
+	}
+
+	var res string
+	for i, v := range def {
+		res += fmt.Sprintf("[%d] %s \n", i, v)
+	}
+
+	g.search.localDict.result.SetText(res)
+}
+
+func (g *gui) searchOnlineDict() {
+	g.tabs.EnableItem(g.tabs.Items[1])
+
+	res, err := api.ApiRequest([]string{g.search.entry.Text})
+	if err != nil {
+		g.search.onlineDict.result.SetText("Word not found")
+		return
+	}
+	log.Println(g.search.entry.Text)
+
+	g.search.onlineDict.result.SetText(res[0])
+}
+
+func (g *gui) searchWikipedia() {
+	g.tabs.EnableItem(g.tabs.Items[2])
+
+	res, err := api.SearchWiki(g.search.entry.Text)
+	if err != nil {
+		g.search.wikipedia.result.SetText("Summary for word not found")
+		return
+	}
+	g.search.wikipedia.result.SetText(res)
 }
