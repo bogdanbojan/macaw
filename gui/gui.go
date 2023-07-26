@@ -1,20 +1,15 @@
 package gui
 
 import (
-	"fmt"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"github.com/bogdanbojan/macaw/gui/assets"
 )
 
 func ShowGUI() {
 	a := app.New()
-	resourceIconPng, err := fyne.LoadResourceFromPath("./gui/assets/Icon.png")
-	if err != nil {
-		fmt.Println(err)
-	}
-	a.SetIcon(resourceIconPng)
+	a.SetIcon(assets.AppIcon)
 	g := &gui{}
 	g.win = a.NewWindow("Macaw")
 
