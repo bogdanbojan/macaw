@@ -17,7 +17,7 @@ func ShowGUI() {
 	g.initTabContainers()
 	toolbar := g.constructToolbar()
 
-	g.search.entry.OnSubmitted = func(s string) { g.searchSources(s) }
+	g.search.entry.OnSubmitted = func(s string) { g.searchWord(s) }
 	g.localDict.slider.SetValue(1)
 	go g.initHotkey()
 
