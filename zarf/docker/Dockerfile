@@ -7,7 +7,7 @@ RUN apt-get update && \
     cd zig-linux-x86_64-0.9.1 && \
     ln -s $(pwd)/zig /usr/bin/
 
-COPY . ./macaw
+COPY . /go/macaw/
 
 WORKDIR /go/macaw/
 
@@ -31,7 +31,7 @@ RUN CGO_ENABLED=1 \
     CGO_LDFLAGS="-mmacosx-version-min=${MACOS_MIN_VER} --sysroot ${MACOS_SDK_PATH} -F/System/Library/Frameworks -L/usr/lib" \
     CC="zig cc -mmacosx-version-min=${MACOS_MIN_VER} -target x86_64-macos-gnu -isysroot ${MACOS_SDK_PATH} -iwithsysroot /usr/include -iframeworkwithsysroot /System/Library/Frameworks" \
     CXX="zig c++ -mmacosx-version-min=${MACOS_MIN_VER} -target x86_64-macos-gnu -isysroot ${MACOS_SDK_PATH} -iwithsysroot /usr/include -iframeworkwithsysroot /System/Library/Frameworks" \
-    go build -ldflags="-w -buildmode=pie" -trimpath -o dist/darwin-amd64/macaw-darwin-amd64 .
+    go build -ldflags="-w -buildmode=pie" -trimpath -o dist/darwin-amd64/macaw-darwin-amd64 ./cmd/main.go
 
 # BUILD WINDOWS BINARY
 ############################################################################### 
@@ -43,7 +43,7 @@ RUN CGO_ENABLED=1 \
     GOARCH=amd64 \
     CC="zig cc -target x86_64-windows-gnu" \
     CXX="zig c++ -target x86_64-windows-gnu" \
-    go build -trimpath -ldflags='-H=windowsgui' -o dist/windows-amd64/macaw-windows-amd64 .
+    go build -trimpath -ldflags='-H=windowsgui' -o dist/windows-amd64/macaw-windows-amd64 ./cmd/main.go
 
 # BUILD LINUX BINARY
 ############################################################################### 
@@ -63,7 +63,7 @@ RUN mkdir -p dist/linux-amd64
 RUN CGO_ENABLED=1 \
     GOOS=linux \
     GOARCH=amd64 \
-    go build -o dist/linux-amd64/macaw-linux-amd64 .
+    go build -o dist/linux-amd64/macaw-linux-amd64 ./cmd/main.go
 
 FROM scratch AS binaries
 COPY --from=base /go/macaw/dist/darwin-amd64 /
