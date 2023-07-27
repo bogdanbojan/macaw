@@ -14,7 +14,7 @@ It can process words from:
 ---
 
 The app can be ran/built by:
-- `make docker-binaries`
+- `make binaries`
 - `make run`
 - `make build`
 
