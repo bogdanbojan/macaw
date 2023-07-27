@@ -5,6 +5,9 @@ name = Macaw
 # Default path to the go binary directory.
 GOBIN ?= ~/go/bin/
 
+binaries:
+	docker buildx build -f zarf/docker/Dockerfile --output bin --target binaries .
+
 build:
 	go build -o bin/macaw ./cmd/main.go
 
@@ -23,6 +26,3 @@ check:
 
 tests:
 	go test ./...
- 
-docker-binaries:
-	docker buildx build -f zarf/docker/Dockerfile --output bin --target binaries .

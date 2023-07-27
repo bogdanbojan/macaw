@@ -1,9 +1,11 @@
 package api
 
 import (
+	"bufio"
 	"database/sql"
 	_ "embed"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -22,7 +24,7 @@ type Dictionary struct {
 	Definition string
 }
 
-func HandleLocalResponse(word string) ([]string, error) {
+func GetLocalDefinition(word string) ([]string, error) {
 	var dict Dictionary
 	var definitions []string
 
@@ -67,4 +69,25 @@ func HandleLocalResponse(word string) ([]string, error) {
 	}
 
 	return definitions, nil
+}
+
+func ExtractWords(fileName string) []string {
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	var words []string
+	for scanner.Scan() {
+		words = append(words, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return words
 }

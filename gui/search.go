@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -10,6 +11,12 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bogdanbojan/macaw/api"
+)
+
+const (
+	LOCAL  = "LOCAL"
+	ONLINE = "ONLINE"
+	WIKI   = "WIKI"
 )
 
 func (g *gui) initSearchWidgets() {
@@ -31,35 +38,142 @@ func (g *gui) initSearchWidgets() {
 	g.search.wikipedia.resultScroll = container.NewVScroll(g.search.wikipedia.result)
 }
 
-func (g *gui) searchSources(string) {
+func (g *gui) searchWord(string) {
 	if len(g.search.entry.Text) == 0 {
 		dialog.ShowInformation("Search error", "Empty search", g.win)
 		return
 	}
 
 	if g.localDict.slider.Value == 1 {
-		g.searchLocalDict()
+		g.outputResult(LOCAL)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.searchOnlineDict()
+		g.outputResult(ONLINE)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.searchWikipedia()
+		g.outputResult(WIKI)
 	}
 
 	g.tabs.Show()
 	g.winResize()
 }
 
-func (g *gui) searchLocalDict() {
+func (g *gui) searchWords(ww []string) {
+	if g.localDict.slider.Value == 1 {
+		g.outputResults(LOCAL, ww)
+	}
+
+	if g.onlineDict.slider.Value == 1 {
+		g.outputResults(ONLINE, ww)
+	}
+
+	if g.wikipedia.slider.Value == 1 {
+		g.outputResults(WIKI, ww)
+	}
+
+	g.tabs.Show()
+	g.winResize()
+}
+
+func (g *gui) outputResult(source string) {
+	switch source {
+	case LOCAL:
+		res, err := g.searchLocalDict(g.search.entry.Text)
+		if err != nil {
+			g.search.localDict.result.SetText("Word not found")
+			return
+		}
+		g.search.localDict.result.SetText(res)
+
+	case ONLINE:
+		res, err := g.searchOnlineDict(g.search.entry.Text)
+		if err != nil {
+			g.search.onlineDict.result.SetText("Word not found")
+			return
+		}
+		g.search.onlineDict.result.SetText(res)
+
+	case WIKI:
+		res, err := g.searchWikipedia(g.search.entry.Text)
+		if err != nil {
+			g.search.wikipedia.result.SetText("Word not found")
+			return
+		}
+		g.search.wikipedia.result.SetText(res)
+	}
+}
+
+// TODO: Move for loop repetition into another function.
+func (g *gui) outputResults(source string, ww []string) {
+	switch source {
+	case LOCAL:
+		var results []string
+		for _, w := range ww {
+			res, err := g.searchLocalDict(w)
+			if err != nil {
+				// TODO: Think about how to handle this. Maybe show a list at
+				// the end of words that the app could not find?
+				log.Println(err)
+				continue
+			}
+			results = append(results, fmt.Sprint(w+"\n")+res)
+		}
+
+		var res string
+		for _, v := range results {
+			res += fmt.Sprintf(" %s \n", v)
+		}
+
+		g.search.localDict.result.SetText(res)
+
+	case ONLINE:
+		var results []string
+		for _, w := range ww {
+			res, err := g.searchOnlineDict(w)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			results = append(results, res)
+		}
+
+		var res string
+		for _, v := range results {
+			res += fmt.Sprintf(" %s \n", v)
+		}
+
+		g.search.onlineDict.result.SetText(res)
+
+	case WIKI:
+		var results []string
+		for _, w := range ww {
+			res, err := g.searchWikipedia(w)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			results = append(results, res)
+		}
+
+		var res string
+		for _, v := range results {
+			res += fmt.Sprintf(" %s \n", v)
+		}
+
+		g.search.wikipedia.result.SetText(res)
+	}
+}
+
+// TODO: Change the naming to getLocalDefinition, getOnlineDefinition and
+// getWikipediaDefinition
+func (g *gui) searchLocalDict(word string) (string, error) {
 	g.tabs.EnableItem(g.tabs.Items[0])
 
-	def, err := api.HandleLocalResponse(g.search.entry.Text)
+	def, err := api.GetLocalDefinition(word)
 	if err != nil || def == nil {
-		g.search.localDict.result.SetText("Word not found")
-		return
+		return "", errors.New("word not found")
 	}
 
 	var res string
@@ -67,29 +181,27 @@ func (g *gui) searchLocalDict() {
 		res += fmt.Sprintf("[%d] %s \n", i, v)
 	}
 
-	g.search.localDict.result.SetText(res)
+	return res, nil
 }
 
-func (g *gui) searchOnlineDict() {
+func (g *gui) searchOnlineDict(word string) (string, error) {
 	g.tabs.EnableItem(g.tabs.Items[1])
 
-	res, err := api.ApiRequest([]string{g.search.entry.Text})
+	res, err := api.GetOnlineDefinition(word)
 	if err != nil {
-		g.search.onlineDict.result.SetText("Word not found")
-		return
+		return "", err
 	}
-	log.Println(g.search.entry.Text)
 
-	g.search.onlineDict.result.SetText(res[0])
+	return res, nil
 }
 
-func (g *gui) searchWikipedia() {
+func (g *gui) searchWikipedia(word string) (string, error) {
 	g.tabs.EnableItem(g.tabs.Items[2])
 
-	res, err := api.SearchWiki(g.search.entry.Text)
+	res, err := api.GetWikipediaSummary(word)
 	if err != nil {
-		g.search.wikipedia.result.SetText("Summary for word not found")
-		return
+		return "", err
 	}
-	g.search.wikipedia.result.SetText(res)
+
+	return res, nil
 }

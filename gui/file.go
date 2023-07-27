@@ -1,9 +1,9 @@
 package gui
 
 import (
-	"fmt"
 	"io"
 	"log"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
@@ -20,21 +20,31 @@ func (g *gui) openFile() {
 			return
 		}
 		g.URI = r.URI()
-		g.loadFile(r)
+		data, err := g.loadFile(r)
+		if err != nil {
+			log.Println("Could not read the file: ", err)
+			return
+		}
+        // TODO: Handle exception where a word is actually a phrase like 
+        // George Washington. You don't want [George, Washington].
+		dataSlice := strings.Split(string(data), "\n")
+		g.searchWords(dataSlice)
+        log.Println(dataSlice)
+
 	}, g.win)
 }
 
-func (g *gui) loadFile(r fyne.URIReadCloser) {
+func (g *gui) loadFile(r fyne.URIReadCloser) ([]byte, error) {
 	read, err := storage.Reader(g.URI)
 	if err != nil {
-		log.Println("Error opening resource", err)
+		return nil, err
 	}
 
 	defer read.Close()
 	data, err := io.ReadAll(read)
-	if err == nil {
-		log.Println("Error reading data", err)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println(string(data))
+	return data, nil
 }
