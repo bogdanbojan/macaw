@@ -166,8 +166,6 @@ func (g *gui) outputResults(source string, ww []string) {
 	}
 }
 
-// TODO: Change the naming to getLocalDefinition, getOnlineDefinition and
-// getWikipediaDefinition
 func (g *gui) searchLocalDict(word string) (string, error) {
 	g.tabs.EnableItem(g.tabs.Items[0])
 

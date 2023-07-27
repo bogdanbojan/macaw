@@ -19,17 +19,16 @@ func (g *gui) openFile() {
 		if r == nil {
 			return
 		}
+
 		g.URI = r.URI()
 		data, err := g.loadFile(r)
 		if err != nil {
 			log.Println("Could not read the file: ", err)
 			return
 		}
-        // TODO: Handle exception where a word is actually a phrase like 
-        // George Washington. You don't want [George, Washington].
+
 		dataSlice := strings.Split(string(data), "\n")
 		g.searchWords(dataSlice)
-        log.Println(dataSlice)
 
 	}, g.win)
 }
