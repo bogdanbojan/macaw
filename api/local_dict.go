@@ -24,7 +24,7 @@ type Dictionary struct {
 	Definition string
 }
 
-func HandleLocalResponse(word string) ([]string, error) {
+func GetLocalDefinition(word string) ([]string, error) {
 	var dict Dictionary
 	var definitions []string
 

@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -43,21 +42,17 @@ type License struct {
 	URL  string `json:"url"`
 }
 
-func ApiRequest(words []string) ([]string, error) {
+func GetOnlineDefinition(word string) (string, error) {
 	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
-	var response []string
-	for _, w := range words {
-		resp, err := http.Get(reqURL + w)
-		if err != nil {
-			fmt.Println(err)
-		}
+	resp, err := http.Get(reqURL + word)
+	if err != nil {
+		return "", err
+	}
 
-		// TODO: Handle error when request does not find the word.
-		s, err := HandleServerResponse(resp, w)
-		if err != nil {
-			return nil, err
-		}
-		response = append(response, s)
+	// TODO: Handle error when request does not find the word.
+	response, err := HandleServerResponse(resp, word)
+	if err != nil {
+		return "", err
 	}
 	return response, nil
 
