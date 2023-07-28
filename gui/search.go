@@ -3,7 +3,6 @@ package gui
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -45,15 +44,15 @@ func (g *gui) searchWord(string) {
 	}
 
 	if g.localDict.slider.Value == 1 {
-		g.outputResult(LOCAL)
+		g.outputResult(LOCAL, g.searchLocalDict)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.outputResult(ONLINE)
+		g.outputResult(ONLINE, g.searchOnlineDict)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.outputResult(WIKI)
+		g.outputResult(WIKI, g.searchWikipedia)
 	}
 
 	g.tabs.Show()
@@ -62,25 +61,28 @@ func (g *gui) searchWord(string) {
 
 func (g *gui) searchWords(ww []string) {
 	if g.localDict.slider.Value == 1 {
-		g.outputResults(LOCAL, ww)
+		g.outputResults(LOCAL, g.searchLocalDict, ww)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.outputResults(ONLINE, ww)
+		g.outputResults(ONLINE, g.searchOnlineDict, ww)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.outputResults(WIKI, ww)
+		g.outputResults(WIKI, g.searchWikipedia, ww)
 	}
 
 	g.tabs.Show()
 	g.winResize()
 }
 
-func (g *gui) outputResult(source string) {
+type searchFunc func(word string) (string, error)
+
+func (g *gui) outputResult(source string, sf searchFunc) {
+	res, err := sf(g.search.entry.Text)
+
 	switch source {
 	case LOCAL:
-		res, err := g.searchLocalDict(g.search.entry.Text)
 		if err != nil {
 			g.search.localDict.result.SetText("Word not found")
 			return
@@ -88,7 +90,6 @@ func (g *gui) outputResult(source string) {
 		g.search.localDict.result.SetText(res)
 
 	case ONLINE:
-		res, err := g.searchOnlineDict(g.search.entry.Text)
 		if err != nil {
 			g.search.onlineDict.result.SetText("Word not found")
 			return
@@ -96,7 +97,6 @@ func (g *gui) outputResult(source string) {
 		g.search.onlineDict.result.SetText(res)
 
 	case WIKI:
-		res, err := g.searchWikipedia(g.search.entry.Text)
 		if err != nil {
 			g.search.wikipedia.result.SetText("Word not found")
 			return
@@ -105,17 +105,14 @@ func (g *gui) outputResult(source string) {
 	}
 }
 
-// TODO: Move for loop repetition into another function.
-func (g *gui) outputResults(source string, ww []string) {
-	switch source {
-	case LOCAL:
+func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
+	res := func(searchFunc) string {
 		var results []string
+		var failedWords []string
 		for _, w := range ww {
-			res, err := g.searchLocalDict(w)
+			res, err := sf(w)
 			if err != nil {
-				// TODO: Think about how to handle this. Maybe show a list at
-				// the end of words that the app could not find?
-				log.Println(err)
+				failedWords = append(failedWords, w)
 				continue
 			}
 			results = append(results, fmt.Sprint(w+"\n")+res)
@@ -126,42 +123,24 @@ func (g *gui) outputResults(source string, ww []string) {
 			res += fmt.Sprintf(" %s \n", v)
 		}
 
+		if len(failedWords) != 0 {
+			res += "Could not find the following words: \n"
+			for _, v := range failedWords {
+				res += v + "\n"
+			}
+		}
+
+		return res
+	}(sf)
+
+	switch source {
+	case LOCAL:
 		g.search.localDict.result.SetText(res)
 
 	case ONLINE:
-		var results []string
-		for _, w := range ww {
-			res, err := g.searchOnlineDict(w)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			results = append(results, res)
-		}
-
-		var res string
-		for _, v := range results {
-			res += fmt.Sprintf(" %s \n", v)
-		}
-
 		g.search.onlineDict.result.SetText(res)
 
 	case WIKI:
-		var results []string
-		for _, w := range ww {
-			res, err := g.searchWikipedia(w)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			results = append(results, res)
-		}
-
-		var res string
-		for _, v := range results {
-			res += fmt.Sprintf(" %s \n", v)
-		}
-
 		g.search.wikipedia.result.SetText(res)
 	}
 }
