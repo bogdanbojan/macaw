@@ -108,11 +108,11 @@ func (g *gui) outputResult(source string, sf searchFunc) {
 func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
 	res := func(searchFunc) string {
 		var results []string
-		var failedWords []string
+		var failedResults []string
 		for _, w := range ww {
 			res, err := sf(w)
 			if err != nil {
-				failedWords = append(failedWords, w)
+				failedResults = append(failedResults, w)
 				continue
 			}
 			results = append(results, fmt.Sprint(w+"\n")+res)
@@ -123,9 +123,9 @@ func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
 			res += fmt.Sprintf(" %s \n", v)
 		}
 
-		if len(failedWords) != 0 {
+		if len(failedResults) != 0 {
 			res += "Could not find the following words: \n"
-			for _, v := range failedWords {
+			for _, v := range failedResults {
 				res += v + "\n"
 			}
 		}
