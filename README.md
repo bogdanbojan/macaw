@@ -1,5 +1,8 @@
 # Macaw
 
+![Releases workflow](https://github.com/bogdanbojan/macaw/workflows/Releases/badge.svg)
+![Code checks workflow](https://github.com/bogdanbojan/macaw/workflows/Code%20checks/badge.svg)
+
 Macaw fetches words definitions both online and offline.
 
 It can fetch data from:
