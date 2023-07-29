@@ -1,0 +1,26 @@
+name: Code checks
+
+on: pull_request
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.20.6'
+      # Go vet errors out on the cross-platform builds if not set.
+      - name: Install graphic headers
+        run: sudo apt-get -y install gcc libgl1-mesa-dev xorg-dev
+      - name: Go fmt
+        run: gofmt -s -w ./..
+      - name: Go test and go vet
+        run: |
+          go test ./...
+          go vet ./...
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
