@@ -72,6 +72,7 @@ func GetLocalDefinition(word string) ([]string, error) {
 }
 
 func ExtractWords(fileName string) []string {
+	fileName = filepath.Clean(fileName)
 	file, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
