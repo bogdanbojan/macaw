@@ -14,6 +14,7 @@ type gui struct {
 	win                fyne.Window
 }
 
+// TODO: Think of a better name than input.
 type input struct {
 	entry  *widget.Entry
 	button *widget.Button
