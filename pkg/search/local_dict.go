@@ -1,9 +1,10 @@
-package api
+package search
 
 import (
 	"bufio"
 	"database/sql"
 	_ "embed"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -15,7 +16,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-//go:embed sqlite_websters_unabridged_dictionary.sql
+//go:embed assets/sqlite_websters_unabridged_dictionary.sql
 var embedSQL []byte
 
 type Dictionary struct {
@@ -24,13 +25,13 @@ type Dictionary struct {
 	Definition string
 }
 
-func GetLocalDefinition(word string) ([]string, error) {
+func GetLocalDefinition(word string) (string, error) {
 	var dict Dictionary
 	var definitions []string
 
 	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer os.RemoveAll(tmpDir)
 
@@ -38,37 +39,39 @@ func GetLocalDefinition(word string) ([]string, error) {
 
 	err = os.WriteFile(tmpFile, embedSQL, 0o400)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	db, err := sql.Open("sqlite3", tmpFile)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer db.Close()
 
-	// Setup for MYSQL with Docker-Compose.
-	//	db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/webster_dictionary")
-	//	if err != nil {
-	//		fmt.Println(err)
-	//	}
-	//	defer db.Close()
-
 	res, err := db.Query(fmt.Sprintf(`SELECT entries.definition FROM entries WHERE entries.word = "%s"`, cases.Title(language.AmericanEnglish).String(word)))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	for res.Next() {
 		err := res.Scan(&dict.Definition)
 
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		definitions = append(definitions, dict.Definition)
 	}
 
-	return definitions, nil
+	if definitions == nil {
+		return "", errors.New("Word not found")
+	}
+	// TODO: Think of better name handling here.
+	var def string
+	for i, v := range definitions {
+		def += fmt.Sprintf("[%d] %s \n", i, v)
+	}
+
+	return def, nil
 }
 
 func ExtractWords(fileName string) []string {

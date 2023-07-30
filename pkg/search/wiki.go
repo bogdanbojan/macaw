@@ -1,4 +1,4 @@
-package api
+package search
 
 import gowiki "github.com/trietmn/go-wiki"
 

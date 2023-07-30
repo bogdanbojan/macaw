@@ -1,4 +1,4 @@
-package api
+package search
 
 import (
 	"encoding/json"
@@ -43,7 +43,7 @@ type License struct {
 }
 
 func GetOnlineDefinition(word string) (string, error) {
-	reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
+    reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
 	resp, err := http.Get(reqURL + word)
 	if err != nil {
 		return "", err
