@@ -34,17 +34,14 @@ func (g *gui) constructToolbar() *widget.Toolbar {
 }
 
 func (g *gui) constructDataFetchContainer() {
-	localDictLabel := widget.NewLabel("Local dictionary")
 	g.localDict.slider = widget.NewSlider(0, 1)
-	onlineDictLabel := widget.NewLabel("Online dictionary")
 	g.onlineDict.slider = widget.NewSlider(0, 1)
-	wikiLabel := widget.NewLabel("Wikipedia")
 	g.wikipedia.slider = widget.NewSlider(0, 1)
 
 	g.dataFetchContainer = container.NewVBox()
 	g.dataFetchContainer.Add(widget.NewLabel("Data fetching options"))
 	g.dataFetchContainer.Add(widget.NewSeparator())
-	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, localDictLabel, g.localDict.slider))
-	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, onlineDictLabel, g.onlineDict.slider))
-	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, wikiLabel, g.wikipedia.slider))
+	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, widget.NewLabel("Local dictionary"), g.localDict.slider))
+	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, widget.NewLabel("Online dictionary"), g.onlineDict.slider))
+	g.dataFetchContainer.Add(container.NewAdaptiveGrid(2, widget.NewLabel("Wikipedia"), g.wikipedia.slider))
 }

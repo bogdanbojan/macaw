@@ -4,7 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"github.com/bogdanbojan/macaw/gui/assets"
+	"github.com/bogdanbojan/macaw/pkg/gui/assets"
 )
 
 func ShowGUI() {
@@ -17,13 +17,13 @@ func ShowGUI() {
 	g.initTabContainers()
 	toolbar := g.constructToolbar()
 
-	g.search.entry.OnSubmitted = func(s string) { g.searchWord(s) }
+	g.input.entry.OnSubmitted = func(s string) { g.searchWord(s) }
 	g.localDict.slider.SetValue(1)
 	go g.initHotkey()
 
 	g.win.SetContent(container.NewBorder(
 		toolbar,
-		g.search.entry, nil, nil,
+		g.input.entry, nil, nil,
 		g.tabs,
 	))
 

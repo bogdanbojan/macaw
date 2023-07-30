@@ -7,14 +7,14 @@ import (
 )
 
 type gui struct {
-	search
+	input
 	dataFetchContainer *fyne.Container
 	tabs               *container.AppTabs
 	URI                fyne.URI
 	win                fyne.Window
 }
 
-type search struct {
+type input struct {
 	entry  *widget.Entry
 	button *widget.Button
 	sources

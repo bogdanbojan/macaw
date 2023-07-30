@@ -18,6 +18,6 @@ func (g *gui) initHotkey() {
 	// Start listen hotkey event whenever it is ready.
 	for range hk.Keydown() {
 		g.win.RequestFocus()
-		g.win.Canvas().Focus(g.search.entry)
+		g.win.Canvas().Focus(g.input.entry)
 	}
 }
