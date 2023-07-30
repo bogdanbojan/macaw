@@ -6,7 +6,7 @@ name = Macaw
 GOBIN ?= ~/go/bin/
 
 binaries:
-	docker buildx build -f zarf/docker/Dockerfile --output bin --target binaries .
+	docker buildx build -f deploy/docker/Dockerfile --output bin --target binaries .
 
 build:
 	go build -o bin/macaw ./cmd/macaw/main.go
