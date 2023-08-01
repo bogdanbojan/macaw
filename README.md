@@ -2,6 +2,7 @@
 
 ![Releases workflow](https://github.com/bogdanbojan/macaw/workflows/Releases/badge.svg)
 ![Code checks workflow](https://github.com/bogdanbojan/macaw/workflows/Code%20checks/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bogdanbojan/macaw)](https://goreportcard.com/report/github.com/bogdanbojan/macaw)
 
 Macaw fetches words definitions both online and offline.
 
