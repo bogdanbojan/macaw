@@ -8,6 +8,7 @@ import (
 
 type gui struct {
 	input
+	searchOptions      map[string]float64
 	dataFetchContainer *fyne.Container
 	tabs               *container.AppTabs
 	URI                fyne.URI
