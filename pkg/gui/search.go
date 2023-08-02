@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"context"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -9,7 +11,7 @@ import (
 	"github.com/bogdanbojan/macaw/pkg/search"
 )
 
-const (
+var (
 	LOCAL  = "LOCAL"
 	ONLINE = "ONLINE"
 	WIKI   = "WIKI"
@@ -36,24 +38,27 @@ func (g *gui) initSearchWidgets() {
 
 // TODO: Atm, redundant method receiver implementation of the Searcher interface.
 func (g *gui) searchWord(string) {
+	ss := search.Sources{}
+	g.searchOptions = make(map[string]float64, 3)
+	g.searchOptions[LOCAL] = g.localDict.slider.Value
+	g.searchOptions[ONLINE] = g.onlineDict.slider.Value
+	g.searchOptions[WIKI] = g.wikipedia.slider.Value
+
 	if len(g.input.entry.Text) == 0 {
 		dialog.ShowInformation("Search error", "Empty input", g.win)
 		return
 	}
 
 	if g.localDict.slider.Value == 1 {
-		ld := search.LocalDictionary{}
-		g.outputResult(LOCAL, ld.Definition)
+		g.outputResult(LOCAL, ss.Search)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		od := search.OnlineDictionary{}
-		g.outputResult(ONLINE, od.Definition)
+		g.outputResult(ONLINE, ss.Search)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		ws := search.WikipediaSummary{}
-		g.outputResult(WIKI, ws.Definition)
+		g.outputResult(WIKI, ss.Search)
 	}
 
 	g.tabs.Show()
@@ -61,29 +66,30 @@ func (g *gui) searchWord(string) {
 }
 
 func (g *gui) searchWords(ww []string) {
+	ss := search.Sources{}
+
 	if g.localDict.slider.Value == 1 {
-		ld := search.LocalDictionary{}
-		g.outputResults(LOCAL, ld.Definitions, ww)
+		g.outputResults(LOCAL, ss.Search, ww)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		od := search.OnlineDictionary{}
-		g.outputResults(ONLINE, od.Definitions, ww)
+		g.outputResults(ONLINE, ss.Search, ww)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		ws := search.WikipediaSummary{}
-		g.outputResults(WIKI, ws.Definitions, ww)
+		g.outputResults(WIKI, ss.Search, ww)
 	}
 
 	g.tabs.Show()
 	g.winResize()
 }
 
-type searchFuncWord func(word string) (string, error)
+type searchFunc func(ctx context.Context, words []string) (string, error)
 
-func (g *gui) outputResult(source string, sf searchFuncWord) {
-	res, err := sf(g.input.entry.Text)
+func (g *gui) outputResult(source string, sf searchFunc) {
+	ctx := context.WithValue(context.Background(), search.OPTIONS, g.searchOptions)
+
+	res, err := sf(ctx, []string{g.input.entry.Text})
 
 	switch source {
 	case LOCAL:
@@ -109,10 +115,10 @@ func (g *gui) outputResult(source string, sf searchFuncWord) {
 	}
 }
 
-type searchFuncWords func(word []string) (string, error)
+func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
+	ctx := context.WithValue(context.Background(), search.OPTIONS, g.searchOptions)
 
-func (g *gui) outputResults(source string, sf searchFuncWords, ww []string) {
-	res, _ := sf(ww)
+	res, _ := sf(ctx, ww)
 
 	switch source {
 	case LOCAL:
