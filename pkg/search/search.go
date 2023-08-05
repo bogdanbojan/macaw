@@ -13,13 +13,18 @@ var (
 	WIKI   = "WIKI"
 )
 
-// TODO: Not sure the context options should live here..
-var OPTIONS = contextKey("OPTIONS")
+var ContextKeyOptions = contextKey("OPTIONS")
 
 type contextKey string
 
 func (c contextKey) String() string {
 	return string(c) + "key"
+}
+
+// OptionKey gets the option setup from the context.
+func OptionKey(ctx context.Context) (string, bool) {
+	optStr, ok := ctx.Value(ContextKeyOptions).(string)
+	return optStr, ok
 }
 
 // TODO: Have a struct as a response.
@@ -47,13 +52,13 @@ type WikipediaSummary struct {
 }
 
 func (s *Sources) Search(ctx context.Context, words []string) (definitions string, err error) {
-	opt := ctx.Value(OPTIONS).(map[string]float64)
+	opt := ctx.Value(ContextKeyOptions).(map[string]float64)
 
 	switch {
 	case opt[LOCAL] == 1:
-        // Check that we searched for the term so we don't always pattern match
-        // on this option. This is ugly.
-        opt[LOCAL] = 0
+		// Check that we searched for the term so we don't always pattern match
+		// on this option. This is ugly.
+		opt[LOCAL] = 0
 		s.LocalDictionary.definitions, err = s.LocalDictionary.Search(words)
 		if err != nil {
 			return "", err
@@ -61,7 +66,7 @@ func (s *Sources) Search(ctx context.Context, words []string) (definitions strin
 		return s.LocalDictionary.definitions, nil
 
 	case opt[ONLINE] == 1:
-        opt[ONLINE] = 0
+		opt[ONLINE] = 0
 		s.OnlineDictionary.definitions, err = s.OnlineDictionary.Search(words)
 		if err != nil {
 			return "", err
@@ -69,7 +74,7 @@ func (s *Sources) Search(ctx context.Context, words []string) (definitions strin
 		return s.OnlineDictionary.definitions, nil
 
 	case opt[WIKI] == 1:
-        opt[WIKI] = 0
+		opt[WIKI] = 0
 		s.WikipediaSummary.definitions, err = s.WikipediaSummary.Search(words)
 		if err != nil {
 			return "", err
@@ -94,7 +99,7 @@ func (*LocalDictionary) Search(words []string) (definitions string, err error) {
 func (*OnlineDictionary) Search(words []string) (definitions string, err error) {
 	dd, fdd := defineWords(words, GetOnlineDefinition)
 	if len(dd) == 1 {
-        log.Println(dd[0])
+		log.Println(dd[0])
 		return dd[0], nil
 	}
 

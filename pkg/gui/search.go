@@ -87,7 +87,7 @@ func (g *gui) searchWords(ww []string) {
 type searchFunc func(ctx context.Context, words []string) (string, error)
 
 func (g *gui) outputResult(source string, sf searchFunc) {
-	ctx := context.WithValue(context.Background(), search.OPTIONS, g.searchOptions)
+	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
 	res, err := sf(ctx, []string{g.input.entry.Text})
 
@@ -116,7 +116,7 @@ func (g *gui) outputResult(source string, sf searchFunc) {
 }
 
 func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
-	ctx := context.WithValue(context.Background(), search.OPTIONS, g.searchOptions)
+	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
 	res, _ := sf(ctx, ww)
 
