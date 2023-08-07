@@ -2,6 +2,7 @@ package gui
 
 import (
 	"context"
+	"fmt"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -9,12 +10,6 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bogdanbojan/macaw/pkg/search"
-)
-
-var (
-	LOCAL  = "LOCAL"
-	ONLINE = "ONLINE"
-	WIKI   = "WIKI"
 )
 
 func (g *gui) initSearchWidgets() {
@@ -40,9 +35,9 @@ func (g *gui) initSearchWidgets() {
 func (g *gui) searchWord(string) {
 	ss := search.Sources{}
 	g.searchOptions = make(map[string]float64, 3)
-	g.searchOptions[LOCAL] = g.localDict.slider.Value
-	g.searchOptions[ONLINE] = g.onlineDict.slider.Value
-	g.searchOptions[WIKI] = g.wikipedia.slider.Value
+	g.searchOptions[search.LOCAL] = g.localDict.slider.Value
+	g.searchOptions[search.ONLINE] = g.onlineDict.slider.Value
+	g.searchOptions[search.WIKI] = g.wikipedia.slider.Value
 
 	if len(g.input.entry.Text) == 0 {
 		dialog.ShowInformation("Search error", "Empty input", g.win)
@@ -50,15 +45,15 @@ func (g *gui) searchWord(string) {
 	}
 
 	if g.localDict.slider.Value == 1 {
-		g.outputResult(LOCAL, ss.Search)
+		g.outputResult(search.LOCAL, ss.Search)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.outputResult(ONLINE, ss.Search)
+		g.outputResult(search.ONLINE, ss.Search)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.outputResult(WIKI, ss.Search)
+		g.outputResult(search.WIKI, ss.Search)
 	}
 
 	g.tabs.Show()
@@ -69,65 +64,97 @@ func (g *gui) searchWords(ww []string) {
 	ss := search.Sources{}
 
 	if g.localDict.slider.Value == 1 {
-		g.outputResults(LOCAL, ss.Search, ww)
+		g.outputResults(search.LOCAL, ss.Search, ww)
 	}
 
 	if g.onlineDict.slider.Value == 1 {
-		g.outputResults(ONLINE, ss.Search, ww)
+		g.outputResults(search.ONLINE, ss.Search, ww)
 	}
 
 	if g.wikipedia.slider.Value == 1 {
-		g.outputResults(WIKI, ss.Search, ww)
+		g.outputResults(search.WIKI, ss.Search, ww)
 	}
 
 	g.tabs.Show()
 	g.winResize()
 }
 
-type searchFunc func(ctx context.Context, words []string) (string, error)
+type searchFunc func(ctx context.Context, words []string) []search.Definition
 
 func (g *gui) outputResult(source string, sf searchFunc) {
 	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
-	res, err := sf(ctx, []string{g.input.entry.Text})
+	res := sf(ctx, []string{g.input.entry.Text})
 
 	switch source {
-	case LOCAL:
-		if err != nil {
+	case search.LOCAL:
+		if !res[0].Ok {
 			g.input.localDict.result.SetText("Word not found")
 			return
 		}
-		g.input.localDict.result.SetText(res)
+		g.input.localDict.result.SetText(res[0].Text)
 
-	case ONLINE:
-		if err != nil {
+	case search.ONLINE:
+		if !res[0].Ok {
 			g.input.onlineDict.result.SetText("Word not found")
 			return
 		}
-		g.input.onlineDict.result.SetText(res)
+		g.input.onlineDict.result.SetText(res[0].Text)
 
-	case WIKI:
-		if err != nil {
+	case search.WIKI:
+		if !res[0].Ok {
 			g.input.wikipedia.result.SetText("Word not found")
 			return
 		}
-		g.input.wikipedia.result.SetText(res)
+		g.input.wikipedia.result.SetText(res[0].Text)
 	}
 }
 
+// TODO: Set limit amount on word input?
 func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
 	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
-	res, _ := sf(ctx, ww)
+	res := sf(ctx, ww)
 
 	switch source {
-	case LOCAL:
-		g.input.localDict.result.SetText(res)
+	case search.LOCAL:
+		dd, fdd := splitDefinitions(res)
+		g.input.localDict.result.SetText(toString(dd, fdd))
 
-	case ONLINE:
-		g.input.onlineDict.result.SetText(res)
+	case search.ONLINE:
+		dd, fdd := splitDefinitions(res)
+		g.input.localDict.result.SetText(toString(dd, fdd))
 
-	case WIKI:
-		g.input.wikipedia.result.SetText(res)
+	case search.WIKI:
+		dd, fdd := splitDefinitions(res)
+		g.input.localDict.result.SetText(toString(dd, fdd))
 	}
+}
+
+func splitDefinitions(res []search.Definition) (definitions, failedDefinitions []string) {
+	var dd []string
+	var fdd []string
+	for _, r := range res {
+		if !r.Ok {
+			fdd = append(fdd, r.Word)
+			continue
+		}
+		dd = append(dd, r.Text)
+	}
+	return dd, fdd
+}
+
+func toString(definitions, failedDefinitions []string) string {
+	var stringdd string
+	for _, d := range definitions {
+		stringdd += fmt.Sprintf(" %s \n", d)
+	}
+
+	if len(failedDefinitions) != 0 {
+		stringdd += "Could not find the following words: \n"
+		for _, fd := range failedDefinitions {
+			stringdd += fd + "\n"
+		}
+	}
+	return stringdd
 }
