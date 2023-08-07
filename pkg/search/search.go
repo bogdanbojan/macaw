@@ -2,11 +2,8 @@ package search
 
 import (
 	"context"
-	"fmt"
-	"log"
 )
 
-// TODO: Duplicate vars due to circular import..
 var (
 	LOCAL  = "LOCAL"
 	ONLINE = "ONLINE"
@@ -21,132 +18,93 @@ func (c contextKey) String() string {
 	return string(c) + "key"
 }
 
-// OptionKey gets the option setup from the context.
-func OptionKey(ctx context.Context) (string, bool) {
+// OptionsKey gets the option setup from the context.
+func OptionsKey(ctx context.Context) (string, bool) {
 	optStr, ok := ctx.Value(ContextKeyOptions).(string)
 	return optStr, ok
 }
 
-// TODO: Have a struct as a response.
 type Searcher interface {
-	Search(ctx context.Context, words []string) (definitions string, err error)
+	Search(ctx context.Context, words []string) []Definition
 }
 
 type Sources struct {
-	LocalDictionary
-	OnlineDictionary
-	WikipediaSummary
+	localDictionary
+	onlineDictionary
+	wikipediaSummary
 }
 
-// TODO: Think about if the definitions field is even worth keeping.
-type LocalDictionary struct {
-	definitions string
+type Definition struct {
+	Word string
+	Text string
+	Ok   bool
 }
 
-type OnlineDictionary struct {
-	definitions string
+type localDictionary struct {
+	dd []Definition
 }
 
-type WikipediaSummary struct {
-	definitions string
+type onlineDictionary struct {
+	dd []Definition
 }
 
-func (s *Sources) Search(ctx context.Context, words []string) (definitions string, err error) {
+type wikipediaSummary struct {
+	dd []Definition
+}
+
+func (s *Sources) Search(ctx context.Context, words []string) []Definition {
 	opt := ctx.Value(ContextKeyOptions).(map[string]float64)
 
 	switch {
 	case opt[LOCAL] == 1:
-		// Check that we searched for the term so we don't always pattern match
-		// on this option. This is ugly.
 		opt[LOCAL] = 0
-		s.LocalDictionary.definitions, err = s.LocalDictionary.Search(words)
-		if err != nil {
-			return "", err
-		}
-		return s.LocalDictionary.definitions, nil
+		s.localDictionary.Search(words)
+		return s.localDictionary.dd
 
 	case opt[ONLINE] == 1:
 		opt[ONLINE] = 0
-		s.OnlineDictionary.definitions, err = s.OnlineDictionary.Search(words)
-		if err != nil {
-			return "", err
-		}
-		return s.OnlineDictionary.definitions, nil
+		s.onlineDictionary.Search(words)
+		return s.onlineDictionary.dd
 
 	case opt[WIKI] == 1:
 		opt[WIKI] = 0
-		s.WikipediaSummary.definitions, err = s.WikipediaSummary.Search(words)
-		if err != nil {
-			return "", err
-		}
-		return s.WikipediaSummary.definitions, nil
+		s.wikipediaSummary.Search(words)
+		return s.wikipediaSummary.dd
 	}
 
-	return "", nil
+	return nil
 }
 
-func (*LocalDictionary) Search(words []string) (definitions string, err error) {
-	dd, fdd := defineWords(words, GetLocalDefinition)
-	if len(dd) == 1 {
-		return dd[0], nil
-	}
-
-	d := toString(dd, fdd)
-
-	return d, nil
+func (ld *localDictionary) Search(words []string) {
+	ld.dd = defineWords(words, GetLocalDefinition)
 }
 
-func (*OnlineDictionary) Search(words []string) (definitions string, err error) {
-	dd, fdd := defineWords(words, GetOnlineDefinition)
-	if len(dd) == 1 {
-		log.Println(dd[0])
-		return dd[0], nil
-	}
-
-	d := toString(dd, fdd)
-
-	return d, nil
+func (od *onlineDictionary) Search(words []string) {
+	od.dd = defineWords(words, GetOnlineDefinition)
 }
 
-func (*WikipediaSummary) Search(words []string) (definitions string, err error) {
-	dd, fdd := defineWords(words, GetWikipediaSummary)
-	if len(dd) == 1 {
-		return dd[0], nil
-	}
-
-	d := toString(dd, fdd)
-
-	return d, nil
+func (ws *wikipediaSummary) Search(words []string) {
+	ws.dd = defineWords(words, GetWikipediaSummary)
 }
 
 type getDefFunc func(word string) (string, error)
 
-func defineWords(words []string, f getDefFunc) (definitions, failedDefinitions []string) {
-	var dd []string
-	var fd []string
+func defineWords(words []string, f getDefFunc) []Definition {
+	var dd []Definition
 	for _, w := range words {
-		d, err := f(w)
+		var d Definition
+		var err error
+
+		d.Text, err = f(w)
 		if err != nil {
-			fd = append(fd, w)
+			// The default bool value is false.
+			dd = append(dd, Definition{Word: w})
 			continue
 		}
-		dd = append(dd, fmt.Sprint(w+"\n")+d)
+		d.Word = w
+		d.Ok = true
+		dd = append(dd, d)
 	}
 
-	return dd, fd
-}
-
-func toString(definitions, failedDefinitions []string) string {
-	var stringdd string
-	for _, d := range definitions {
-		stringdd += fmt.Sprintf(" %s \n", d)
-	}
-
-	if len(failedDefinitions) != 0 {
-		stringdd += "Could not find the following words: \n"
-		for _, fd := range failedDefinitions {
-			stringdd += fd + "\n"
-		}
-	}
-	return stringdd
+	return dd
 }
