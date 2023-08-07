@@ -13,7 +13,9 @@ jobs:
           go-version: '1.20.6'
       # Go vet errors out on the cross-platform builds if not set.
       - name: Install graphic headers
-        run: sudo apt-get -y install gcc libgl1-mesa-dev xorg-dev
+        run: |
+          sudo apt-get update 
+          sudo apt-get -y install gcc libgl1-mesa-dev xorg-dev
       - name: Go fmt
         run: gofmt -s -w ./..
       - name: Go test and go vet
