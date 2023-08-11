@@ -12,6 +12,7 @@ import (
 	"github.com/bogdanbojan/macaw/pkg/search"
 )
 
+// initSearchWidgets constructs the search-related input widgets.
 func (g *gui) initSearchWidgets() {
 	g.input.entry = widget.NewEntry()
 	g.input.entry.SetPlaceHolder("Enter a word to input for...")
@@ -31,7 +32,9 @@ func (g *gui) initSearchWidgets() {
 	g.input.wikipedia.resultScroll = container.NewVScroll(g.input.wikipedia.result)
 }
 
-// TODO: Atm, redundant method receiver implementation of the Searcher interface.
+// searchWord takes the input given by the user and then passes that on to the
+// search package to get the definition. After that, based on the current user
+// options it calls outputResult to show the result to the user.
 func (g *gui) searchWord(string) {
 	ss := search.Sources{}
 	g.searchOptions = make(map[string]float64, 3)
@@ -60,6 +63,9 @@ func (g *gui) searchWord(string) {
 	g.winResize()
 }
 
+// searchWords takes the text file input given by the user and then passes that
+// on to the search package to get the definition. After that, based on the
+// current user options it calls outputResult to show the result to the user.
 func (g *gui) searchWords(ww []string) {
 	ss := search.Sources{}
 
@@ -79,8 +85,11 @@ func (g *gui) searchWords(ww []string) {
 	g.winResize()
 }
 
+// searchFunc is the default function signature for the main search function
+// described by the Searcher interface.
 type searchFunc func(ctx context.Context, words []string) []search.Definition
 
+// outputResult writes the correct Definition search result to the gui.
 func (g *gui) outputResult(source string, sf searchFunc) {
 	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
@@ -111,6 +120,7 @@ func (g *gui) outputResult(source string, sf searchFunc) {
 }
 
 // TODO: Set limit amount on word input?
+// outputResults writes the correct Definition text file search result to the gui.
 func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
 	ctx := context.WithValue(context.Background(), search.ContextKeyOptions, g.searchOptions)
 
@@ -131,6 +141,8 @@ func (g *gui) outputResults(source string, sf searchFunc, ww []string) {
 	}
 }
 
+// splitDefinitions processes the search results and splits them into successful
+// and unsuccessful results.
 func splitDefinitions(res []search.Definition) (definitions, failedDefinitions []string) {
 	var dd []string
 	var fdd []string
@@ -144,6 +156,8 @@ func splitDefinitions(res []search.Definition) (definitions, failedDefinitions [
 	return dd, fdd
 }
 
+// toString is a helper function which takes the splitDefinitions and transforms
+// them into a human-friendly output.
 func toString(definitions, failedDefinitions []string) string {
 	var stringdd string
 	for _, d := range definitions {
