@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bogdanbojan/macaw/gui"
+	"github.com/bogdanbojan/macaw/pkg/gui"
 )
 
 func main() {

@@ -4,9 +4,11 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"github.com/bogdanbojan/macaw/gui/assets"
+	"github.com/bogdanbojan/macaw/pkg/gui/assets"
 )
 
+// ShowGUI is the main controller function for the GUI. It sets up the widgets,
+// toolbar, searchbar and content for the user.
 func ShowGUI() {
 	a := app.New()
 	a.SetIcon(assets.AppIcon)
@@ -17,13 +19,13 @@ func ShowGUI() {
 	g.initTabContainers()
 	toolbar := g.constructToolbar()
 
-	g.search.entry.OnSubmitted = func(s string) { g.searchWord(s) }
+	g.input.entry.OnSubmitted = func(s string) { g.searchWord(s) }
 	g.localDict.slider.SetValue(1)
 	go g.initHotkey()
 
 	g.win.SetContent(container.NewBorder(
 		toolbar,
-		g.search.entry, nil, nil,
+		g.input.entry, nil, nil,
 		g.tabs,
 	))
 
@@ -33,6 +35,8 @@ func ShowGUI() {
 	g.win.ShowAndRun()
 }
 
+// winResize refreshes the size of the window. It's needed to change the size 
+// dynamically when you make a search in the app.
 func (g *gui) winResize() {
 	g.win.Resize(fyne.NewSize(
 		g.win.Canvas().Size().Width,
@@ -42,6 +46,7 @@ func (g *gui) winResize() {
 }
 
 // TODO: Add logic to select last activated tab when deactivating a certain tab.
+// listenSliderChange listens to any search option changes that the user makes.
 func (g *gui) listenSliderChange() {
 	g.localDict.slider.OnChanged = func(f float64) {
 		if f == 0 {

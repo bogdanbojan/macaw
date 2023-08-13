@@ -6,20 +6,27 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// gui is the main struct of the package, which holds all the information regarding
+// things like tabs, search input, file URI or window settings.
 type gui struct {
-	search
+	input
+	searchOptions      map[string]float64
 	dataFetchContainer *fyne.Container
 	tabs               *container.AppTabs
 	URI                fyne.URI
 	win                fyne.Window
 }
 
-type search struct {
+// TODO: Think of a better name than input.
+// input contains all relevant search-related input information.
+type input struct {
 	entry  *widget.Entry
 	button *widget.Button
 	sources
 }
 
+// sources embeds the search-options of the app, along with widgets that deal 
+// with outputting the results in the gui.
 type sources struct {
 	localDict
 	onlineDict

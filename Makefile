@@ -6,13 +6,13 @@ name = Macaw
 GOBIN ?= ~/go/bin/
 
 binaries:
-	docker buildx build -f zarf/docker/Dockerfile --output bin --target binaries .
+	docker buildx build -f deploy/docker/Dockerfile --output bin --target binaries .
 
 build:
-	go build -o bin/macaw ./cmd/main.go
+	go build -o bin/macaw ./cmd/macaw/main.go
 
 run:
-	go run ./cmd/main.go
+	go run ./cmd/macaw/main.go
 	
 bundle:
 	${GOBIN}fyne bundle -package assets -name AppIcon ${icon} > ./gui/assets/bundled.go

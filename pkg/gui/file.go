@@ -10,6 +10,9 @@ import (
 	"fyne.io/fyne/v2/storage"
 )
 
+// openFile handles the dialog in which you select your text file for processing.
+// It is a controller function which makes use of helper functions to load the
+// actual file on your OS and then search the definitions for it.
 func (g *gui) openFile() {
 	dialog.ShowFileOpen(func(r fyne.URIReadCloser, err error) {
 		if err != nil {
@@ -33,6 +36,7 @@ func (g *gui) openFile() {
 	}, g.win)
 }
 
+// loadFile reads the bytes from your text file.
 func (g *gui) loadFile(r fyne.URIReadCloser) ([]byte, error) {
 	read, err := storage.Reader(g.URI)
 	if err != nil {
