@@ -8,6 +8,8 @@ import (
 	"golang.design/x/hotkey"
 )
 
+// initHotkey registers a system wide keyboard shortcut for the application pop-up.
+// On windows systems, the keyboard shortcut is `Windows Key + Shift Key + J`.
 func (g *gui) initHotkey() {
 	// If numlock is on this will not take effect.
 	// Windows+Shift+J
