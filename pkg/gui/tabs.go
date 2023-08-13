@@ -2,6 +2,7 @@ package gui
 
 import "fyne.io/fyne/v2/container"
 
+// initTabContainers initiates the tabs, found in the toolbar, which hold the search options.
 func (g *gui) initTabContainers() {
 	tabLocalDict := container.NewTabItem("Local dictionary", g.input.localDict.resultScroll)
 	tabOnlineDict := container.NewTabItem("Online dictionary", g.input.onlineDict.resultScroll)

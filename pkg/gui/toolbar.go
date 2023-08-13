@@ -9,6 +9,8 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+// constructToolbar initiates the app toolbar with the file search option, the
+// sources for the search and an information widget with the repo's URL.
 func (g *gui) constructToolbar() *widget.Toolbar {
 	toolbar := widget.NewToolbar()
 
@@ -33,6 +35,8 @@ func (g *gui) constructToolbar() *widget.Toolbar {
 	return toolbar
 }
 
+// constructDataFetchContainer initiates the sliders of the search options found 
+// in the toolbar.
 func (g *gui) constructDataFetchContainer() {
 	g.localDict.slider = widget.NewSlider(0, 1)
 	g.onlineDict.slider = widget.NewSlider(0, 1)
