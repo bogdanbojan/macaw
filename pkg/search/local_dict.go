@@ -19,12 +19,15 @@ import (
 //go:embed assets/sqlite_websters_unabridged_dictionary.sql
 var embedSQL []byte
 
+// Dictionary represents the local dictionary response which we can unmarshal the 
+// data into.
 type Dictionary struct {
 	Word       string
 	Wordtype   string
 	Definition string
 }
 
+// GetLocalDefinition returns a formatted definition of a word taken from the local db.
 func GetLocalDefinition(word string) (string, error) {
 	var dict Dictionary
 	var definitions []string
@@ -74,6 +77,8 @@ func GetLocalDefinition(word string) (string, error) {
 	return def, nil
 }
 
+// ExtractWords takes a text file with multiple words and then creates a list with 
+// said words.
 func ExtractWords(fileName string) []string {
 	fileName = filepath.Clean(fileName)
 	file, err := os.Open(fileName)

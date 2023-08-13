@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+// Response represents the structure of the API call json response that we get
+// from api.dictionaryapi.dev.
 type Response struct {
 	Word       string     `json:"word"`
 	Phonetic   string     `json:"phonetic"`
@@ -42,6 +44,8 @@ type License struct {
 	URL  string `json:"url"`
 }
 
+// GetOnlineDefinition fetches the definition from the online API and unmarshals 
+// it into a Response struct based on the word parameter.
 func GetOnlineDefinition(word string) (string, error) {
     reqURL := "https://api.dictionaryapi.dev/api/v2/entries/en/"
 	resp, err := http.Get(reqURL + word)
@@ -58,6 +62,7 @@ func GetOnlineDefinition(word string) (string, error) {
 
 }
 
+// HandleServerResponse unmarshals, indents and formats the http response into a string.
 func HandleServerResponse(resp *http.Response, word string) (string, error) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
